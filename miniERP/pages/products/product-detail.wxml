@@ -1,0 +1,38 @@
+<!-- 产品详情页面 -->
+<view class="container">
+  <view class="product-image">
+    <image src="{{product.image}}" mode="aspectFit" class="product-img"></image>
+  </view>
+  
+  <view class="product-info">
+    <view class="info-item">
+      <text class="label">产品名称:</text>
+      <text class="value">{{product.name}}</text>
+    </view>
+    
+    <view class="info-item">
+      <text class="label">产品编号:</text>
+      <text class="value">{{product.code}}</text>
+    </view>
+    
+    <view class="info-item">
+      <text class="label">价格:</text>
+      <text class="value price">¥{{product.price}}</text>
+    </view>
+    
+    <view class="info-item">
+      <text class="label">库存数量:</text>
+      <text class="value">{{product.stock}}</text>
+    </view>
+    
+    <view class="info-item">
+      <text class="label">产品描述:</text>
+      <text class="value">{{product.description}}</text>
+    </view>
+  </view>
+  
+  <view class="action-buttons">
+    <button class="edit-btn" bindtap="editProduct">编辑产品</button>
+    <button class="delete-btn" bindtap="deleteProduct">删除产品</button>
+  </view>
+</view>

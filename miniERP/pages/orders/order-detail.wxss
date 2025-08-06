@@ -1,0 +1,164 @@
+.container {
+  padding: 20rpx;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.order-info, .products-section {
+  background-color: white;
+  border-radius: 10rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 30rpx;
+  border-bottom: 1rpx solid #eee;
+  padding-bottom: 20rpx;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.label {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+}
+
+.value {
+  font-size: 32rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.price {
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+.status {
+  padding: 5rpx 15rpx;
+  border-radius: 20rpx;
+  font-size: 28rpx;
+}
+
+.status.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status.processing {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.status.shipped {
+  background-color: #cce5ff;
+  color: #004085;
+}
+
+.status.delivered {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status.cancelled {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.section-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 30rpx;
+  border-bottom: 2rpx solid #1976D2;
+  padding-bottom: 15rpx;
+}
+
+.product-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.product-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background-color: #f8f9fa;
+  border-radius: 10rpx;
+  gap: 20rpx;
+}
+
+.product-image {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 10rpx;
+  background-color: #e9ecef;
+}
+
+.product-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.product-name {
+  font-size: 32rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.product-price {
+  font-size: 28rpx;
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+.product-quantity {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 40rpx;
+}
+
+.edit-btn, .delete-btn {
+  flex: 1;
+  height: 88rpx;
+  border-radius: 44rpx;
+  font-size: 32rpx;
+  line-height: 88rpx;
+  text-align: center;
+  border: none;
+}
+
+.edit-btn {
+  background-color: #1976D2;
+  color: white;
+}
+
+.delete-btn {
+  background-color: #f56c6c;
+  color: white;
+}
+
+.edit-btn:active {
+  background-color: #1565C0;
+}
+
+.delete-btn:active {
+  background-color: #e53935;
+}

@@ -1,0 +1,243 @@
+.container {
+  padding: 20rpx;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.search-section {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 30rpx;
+}
+
+.search-input {
+  flex: 1;
+  height: 80rpx;
+  padding: 0 30rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 40rpx;
+  background-color: white;
+  font-size: 30rpx;
+  box-sizing: border-box;
+}
+
+.search-btn {
+  height: 80rpx;
+  padding: 0 40rpx;
+  background-color: #1976D2;
+  color: white;
+  border: none;
+  border-radius: 40rpx;
+  font-size: 30rpx;
+  line-height: 80rpx;
+  text-align: center;
+}
+
+.search-btn:active {
+  background-color: #1565C0;
+}
+
+.stats-section {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 30rpx;
+}
+
+.stats-card {
+  flex: 1;
+  background-color: white;
+  border-radius: 10rpx;
+  padding: 30rpx;
+  text-align: center;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+}
+
+.stats-card.warning {
+  background-color: #fff3cd;
+  border-left: 8rpx solid #ffc107;
+}
+
+.stats-card.danger {
+  background-color: #f8d7da;
+  border-left: 8rpx solid #dc3545;
+}
+
+.stats-number {
+  display: block;
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.stats-label {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.filter-section {
+  margin-bottom: 30rpx;
+}
+
+.filter-tabs {
+  display: flex;
+  background-color: white;
+  border-radius: 10rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+}
+
+.tab {
+  flex: 1;
+  padding: 30rpx 0;
+  text-align: center;
+  font-size: 30rpx;
+  color: #666;
+  background-color: white;
+  border-bottom: 4rpx solid transparent;
+  transition: all 0.3s ease;
+}
+
+.tab.active {
+  color: #1976D2;
+  border-bottom-color: #1976D2;
+  font-weight: bold;
+}
+
+.tab:active {
+  background-color: #f5f5f5;
+}
+
+.inventory-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.inventory-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  border-radius: 10rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+}
+
+.product-info {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  flex: 1;
+}
+
+.product-image {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 10rpx;
+  background-color: #f0f0f0;
+}
+
+.product-details {
+  flex: 1;
+}
+
+.product-name {
+  display: block;
+  font-size: 32rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 10rpx;
+}
+
+.product-code {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+}
+
+.product-price {
+  display: block;
+  font-size: 28rpx;
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+.stock-info {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.stock-amount {
+  padding: 10rpx 20rpx;
+  border-radius: 20rpx;
+  text-align: center;
+  min-width: 120rpx;
+}
+
+.stock-amount.normal-stock {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.stock-amount.low-stock {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.stock-amount.out-of-stock {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.stock-number {
+  display: block;
+  font-size: 36rpx;
+  font-weight: bold;
+}
+
+.stock-unit {
+  display: block;
+  font-size: 24rpx;
+  margin-top: 5rpx;
+}
+
+.adjust-btn {
+  height: 60rpx;
+  padding: 0 30rpx;
+  background-color: #1976D2;
+  color: white;
+  border: none;
+  border-radius: 30rpx;
+  font-size: 28rpx;
+  line-height: 60rpx;
+  text-align: center;
+}
+
+.adjust-btn:active {
+  background-color: #1565C0;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+  color: #999;
+}
+
+.empty-image {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 30rpx;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #999;
+}
