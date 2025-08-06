@@ -25,58 +25,190 @@ class LevelSystem {
 
   // 生成关卡配置
   generateLevelConfig(level) {
-    // 基础配置
-    const baseSize = 5
-    const maxSize = 30
-    
-    // 关卡大小递增规则
-    let gridSize = Math.min(
-      baseSize + Math.floor(Math.sqrt(level - 1) * 1.5),
-      maxSize
-    )
-
-    // 特殊关卡配置
-    let width = gridSize
-    let height = gridSize
-    let special = null
-
-    // 每10关有特殊形状
-    if (level % 10 === 0) {
-      special = this.getSpecialLevel(level)
-      if (special) {
-        width = special.width
-        height = special.height
-      }
-    }
-
-    // 难度递增规则
-    const difficulty = Math.min(Math.floor(level / 5) + 1, 5)
+    // 根据关卡阶段设计不同的配置
+    const stageConfig = this.getStageConfig(level)
     
     return {
       level,
+      width: stageConfig.width,
+      height: stageConfig.height,
+      difficulty: stageConfig.difficulty,
+      special: stageConfig.special,
+      targetTime: this.calculateTargetTime(stageConfig.width, stageConfig.height, stageConfig.difficulty),
+      maxStars: this.calculateMaxStars(stageConfig.width, stageConfig.height),
+      description: stageConfig.description,
+      gameMode: stageConfig.gameMode || 'classic',
+      features: stageConfig.features || []
+    }
+  }
+
+  // 获取关卡阶段配置
+  getStageConfig(level) {
+    // 阶段1: 教学关卡 (1-5关)
+    if (level <= 5) {
+      return this.getTutorialConfig(level)
+    }
+    
+    // 阶段2: 基础练习 (6-15关)
+    if (level <= 15) {
+      return this.getBasicConfig(level)
+    }
+    
+    // 阶段3: 进阶挑战 (16-30关)
+    if (level <= 30) {
+      return this.getAdvancedConfig(level)
+    }
+    
+    // 阶段4: 高级技巧 (31-50关)
+    if (level <= 50) {
+      return this.getExpertConfig(level)
+    }
+    
+    // 阶段5: 大师挑战 (51-100关)
+    return this.getMasterConfig(level)
+  }
+
+  // 教学关卡配置
+  getTutorialConfig(level) {
+    const configs = [
+      { width: 3, height: 3, description: '新手入门 - 3×3迷宫', gameMode: 'tutorial', features: ['tutorial_arrows'] },
+      { width: 4, height: 3, description: '基础练习 - 4×3矩形', gameMode: 'tutorial', features: ['highlight_path'] },
+      { width: 4, height: 4, description: '小试牛刀 - 4×4挑战', gameMode: 'classic', features: ['show_progress'] },
+      { width: 5, height: 4, description: '进阶尝试 - 5×4扩展', gameMode: 'classic', features: ['undo_hint'] },
+      { width: 5, height: 5, description: '首次完整 - 5×5标准', gameMode: 'classic', features: ['time_bonus'] }
+    ]
+    
+    const config = configs[level - 1] || { width: 5, height: 5, description: '标准关卡' }
+    return {
+      ...config,
+      difficulty: 1,
+      special: null
+    }
+  }
+
+  // 基础练习配置
+  getBasicConfig(level) {
+    const offset = level - 6
+    const sizes = [
+      { width: 5, height: 5 },
+      { width: 5, height: 6 },
+      { width: 6, height: 5 },
+      { width: 6, height: 6 },
+      { width: 6, height: 7 },
+      { width: 7, height: 6 },
+      { width: 7, height: 7 },
+      { width: 7, height: 8 },
+      { width: 8, height: 7 },
+      { width: 8, height: 8 }
+    ]
+    
+    const sizeIndex = Math.min(offset, sizes.length - 1)
+    const size = sizes[sizeIndex]
+    
+    return {
+      width: size.width,
+      height: size.height,
+      difficulty: Math.min(Math.floor(level / 5), 3),
+      special: level % 5 === 0 ? this.getSpecialLevel(level) : null,
+      description: `基础第${offset + 1}关 - ${size.width}×${size.height}`,
+      gameMode: 'classic',
+      features: ['undo_hint', 'time_bonus']
+    }
+  }
+
+  // 进阶挑战配置
+  getAdvancedConfig(level) {
+    const offset = level - 16
+    const width = Math.min(8 + Math.floor(offset / 3), 12)
+    const height = Math.min(8 + Math.floor(offset / 4), 12)
+    
+    // 引入矩形网格
+    const isWide = offset % 4 === 0
+    const isTall = offset % 4 === 2
+    
+    let finalWidth = width
+    let finalHeight = height
+    
+    if (isWide) finalWidth = Math.min(width + 2, 15)
+    if (isTall) finalHeight = Math.min(height + 2, 15)
+    
+    return {
+      width: finalWidth,
+      height: finalHeight,
+      difficulty: Math.min(Math.floor(level / 5), 4),
+      special: level % 5 === 0 ? this.getSpecialLevel(level) : null,
+      description: `进阶挑战 - ${finalWidth}×${finalHeight}${isWide ? ' 宽阔' : isTall ? ' 高耸' : ''}`,
+      gameMode: 'classic',
+      features: ['undo_hint', 'time_bonus', 'perfect_bonus']
+    }
+  }
+
+  // 高级技巧配置
+  getExpertConfig(level) {
+    const offset = level - 31
+    const baseSize = 12
+    const growth = Math.floor(offset / 2)
+    
+    const width = Math.min(baseSize + growth, 18)
+    const height = Math.min(baseSize + growth, 18)
+    
+    // 引入特殊形状
+    const specialShapes = ['L-shape', 'T-shape', 'cross', 'frame']
+    const shapeIndex = offset % specialShapes.length
+    
+    return {
       width,
       height,
-      difficulty,
-      special,
-      targetTime: this.calculateTargetTime(width, height, difficulty),
-      maxStars: this.calculateMaxStars(width, height),
-      description: this.getLevelDescription(level, special)
+      difficulty: 4,
+      special: this.getSpecialLevel(level) || { type: specialShapes[shapeIndex], name: '特殊形状' },
+      description: `专家级 - ${width}×${height} ${specialShapes[shapeIndex]}`,
+      gameMode: 'challenge',
+      features: ['undo_hint', 'time_bonus', 'perfect_bonus', 'move_limit']
+    }
+  }
+
+  // 大师挑战配置
+  getMasterConfig(level) {
+    const offset = level - 51
+    const baseSize = 15
+    const growth = Math.floor(offset / 1.5)
+    
+    const width = Math.min(baseSize + growth, 25)
+    const height = Math.min(baseSize + growth, 25)
+    
+    return {
+      width,
+      height,
+      difficulty: 5,
+      special: level % 3 === 0 ? this.getSpecialLevel(level) : null,
+      description: `大师级 - ${width}×${height} 极限挑战`,
+      gameMode: 'master',
+      features: ['undo_hint', 'time_bonus', 'perfect_bonus', 'move_limit', 'no_mistake']
     }
   }
 
   // 特殊关卡配置
   getSpecialLevel(level) {
     const specials = {
-      10: { width: 8, height: 8, type: 'square', name: '完美正方形' },
-      20: { width: 12, height: 8, type: 'rectangle', name: '黄金矩形' },
-      30: { width: 15, height: 10, type: 'wide', name: '宽阔视野' },
-      40: { width: 10, height: 15, type: 'tall', name: '高耸入云' },
-      50: { width: 20, height: 20, type: 'mega', name: '巨型挑战' },
-      60: { width: 16, height: 12, type: 'golden', name: '黄金比例' },
-      70: { width: 18, height: 18, type: 'double', name: '双倍难度' },
-      80: { width: 24, height: 16, type: 'ultra', name: '极限挑战' },
-      90: { width: 25, height: 25, type: 'master', name: '大师级' },
-      100: { width: 30, height: 30, type: 'legendary', name: '传奇终章' }
+      10: { width: 8, height: 8, type: 'perfect_square', name: '完美正方形', description: '经典8×8挑战' },
+      15: { width: 9, height: 6, type: 'golden_ratio', name: '黄金比例', description: '符合黄金分割的矩形' },
+      20: { width: 12, height: 8, type: 'wide_rectangle', name: '宽阔矩形', description: '横向扩展的矩形网格' },
+      25: { width: 10, height: 10, type: 'symmetry', name: '对称之美', description: '完美对称的正方形' },
+      30: { width: 15, height: 10, type: 'landscape', name: '风景模式', description: '宽阔视野的挑战' },
+      35: { width: 12, height: 12, type: 'perfect_square', name: '进阶正方形', description: '12×12进阶挑战' },
+      40: { width: 10, height: 15, type: 'portrait', name: '肖像模式', description: '纵向高耸的网格' },
+      45: { width: 14, height: 14, type: 'perfect_square', name: '大正方形', description: '14×14大型网格' },
+      50: { width: 20, height: 20, type: 'mega_grid', name: '巨型挑战', description: '20×20终极考验' },
+      55: { width: 16, height: 12, type: 'golden_ratio', name: '黄金矩形', description: '16×12黄金比例' },
+      60: { width: 18, height: 18, type: 'perfect_square', name: '双倍正方形', description: '18×18双倍难度' },
+      65: { width: 15, height: 15, type: 'perfect_square', name: '十五方格', description: '15×15标准挑战' },
+      70: { width: 18, height: 18, type: 'ultra_square', name: '极限正方形', description: '18×18极限挑战' },
+      75: { width: 20, height: 15, type: 'wide_ultra', name: '超宽视野', description: '20×15超宽网格' },
+      80: { width: 24, height: 16, type: 'ultra_wide', name: '超宽挑战', description: '24×16超宽终极' },
+      85: { width: 20, height: 20, type: 'perfect_square', name: '二十方格', description: '20×20大师级' },
+      90: { width: 25, height: 25, type: 'master_grid', name: '大师级挑战', description: '25×25大师考验' },
+      95: { width: 22, height: 22, type: 'perfect_square', name: '二十二格', description: '22×22接近极限' },
+      100: { width: 30, height: 30, type: 'legendary', name: '传奇终章', description: '30×30传奇挑战' }
     }
 
     return specials[level] || null

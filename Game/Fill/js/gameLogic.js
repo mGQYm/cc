@@ -262,6 +262,8 @@ class GameLogic {
     // 触摸事件处理
     let touchStartTime = 0
     let touchStartPos = null
+    let isDragging = false
+    let dragPath = []
     
     wx.onTouchStart((e) => {
       if (!this.state.isGameActive) return
@@ -271,19 +273,32 @@ class GameLogic {
       touchStartPos = this.getCellFromPosition(touch.clientX, touch.clientY)
       
       this.state.dragStartPos = touchStartPos
+      isDragging = false
+      dragPath = []
+      
+      // 如果触摸的是当前路径的最后一个格子，开始拖拽
+      if (touchStartPos && this.isSamePosition(touchStartPos, this.getLastPosition())) {
+        isDragging = true
+        dragPath = [...this.state.currentPath]
+      }
     })
     
     wx.onTouchMove((e) => {
-      if (!this.state.isGameActive || this.state.interactionMode !== 'drag') return
+      if (!this.state.isGameActive || !isDragging) return
       
       const touch = e.touches[0]
       const currentCell = this.getCellFromPosition(touch.clientX, touch.clientY)
       
-      if (currentCell && currentCell !== this.state.lastDragCell) {
-        const moved = this.moveToCell(currentCell)
-        if (moved) {
-          this.state.lastDragCell = currentCell
-        }
+      if (currentCell && this.isValidDragMove(currentCell)) {
+        // 添加拖拽路径预览
+        this.addDragPreview(currentCell)
+        
+        // 延迟一小段时间再实际移动，提高用户体验
+        setTimeout(() => {
+          if (this.isValidMove(this.getLastPosition(), currentCell)) {
+            this.moveToCell(currentCell)
+          }
+        }, 50)
       }
     })
     
@@ -294,14 +309,83 @@ class GameLogic {
       const touch = e.changedTouches[0]
       const endCell = this.getCellFromPosition(touch.clientX, touch.clientY)
       
+      // 清除拖拽预览
+      this.clearDragPreview()
+      
       // 点击模式处理
-      if (this.state.interactionMode === 'click' && touchDuration < 200 && endCell) {
+      if (!isDragging && this.state.interactionMode === 'click' && touchDuration < 200 && endCell) {
         this.moveToCell(endCell)
+      }
+      
+      // 拖拽模式结束
+      if (isDragging) {
+        this.finalizeDragMove()
       }
       
       this.state.dragStartPos = null
       this.state.lastDragCell = null
+      isDragging = false
+      dragPath = []
     })
+    
+    // 长按开始拖拽模式
+    wx.onLongPress((e) => {
+      if (!this.state.isGameActive) return
+      
+      const touch = e.touches[0]
+      const cell = this.getCellFromPosition(touch.clientX, touch.clientY)
+      
+      if (cell && this.isSamePosition(cell, this.getLastPosition())) {
+        isDragging = true
+        dragPath = [...this.state.currentPath]
+        this.showDragHint()
+      }
+    })
+  }
+
+  // 检查两个位置是否相同
+  isSamePosition(pos1, pos2) {
+    return pos1 && pos2 && pos1.x === pos2.x && pos1.y === pos2.y
+  }
+
+  // 检查拖拽移动是否有效
+  isValidDragMove(cell) {
+    if (!cell) return false
+    
+    const lastPos = this.getLastPosition()
+    if (!lastPos) return false
+    
+    // 检查是否是相邻格子
+    const dx = Math.abs(cell.x - lastPos.x)
+    const dy = Math.abs(cell.y - lastPos.y)
+    const isAdjacent = (dx === 1 && dy === 0) || (dx === 0 && dy === 1)
+    
+    if (!isAdjacent) return false
+    
+    // 检查是否已经被访问过
+    const cellKey = `${cell.x},${cell.y}`
+    return !this.state.visitedCells.has(cellKey)
+  }
+
+  // 添加拖拽预览
+  addDragPreview(cell) {
+    // 在实际应用中，这里可以添加视觉反馈
+    this.emit('dragPreview', { cell })
+  }
+
+  // 清除拖拽预览
+  clearDragPreview() {
+    this.emit('clearDragPreview')
+  }
+
+  // 完成拖拽移动
+  finalizeDragMove() {
+    this.emit('dragComplete')
+  }
+
+  // 显示拖拽提示
+  showDragHint() {
+    this.emit('showHint', { message: '拖拽移动 - 滑动手指连续移动' })
   }
 
   // 获取游戏状态
