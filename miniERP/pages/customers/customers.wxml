@@ -1,0 +1,87 @@
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-container">
+      <image class="search-icon" src="../../images/search.png" mode="aspectFit" />
+      <input 
+        class="search-input" 
+        placeholder="搜索客户姓名、电话或邮箱" 
+        value="{{searchKeyword}}"
+        bindinput="onSearchInput"
+        confirm-type="search"
+      />
+      <image 
+        wx:if="{{searchKeyword}}" 
+        class="clear-icon" 
+        src="../../images/clear.png" 
+        mode="aspectFit" 
+        bindtap="clearSearch"
+      />
+    </view>
+    <button class="add-btn" bindtap="navigateToCreateCustomer">
+      <image src="../../images/add.png" mode="aspectFit" />
+    </button>
+  </view>
+
+  <!-- 客户列表 -->
+  <scroll-view 
+    class="customer-list" 
+    scroll-y 
+    enable-back-to-top
+    bindscrolltolower="onReachBottom"
+  >
+    <view wx:if="{{loading && customers.length === 0}}" class="loading">
+      <image src="../../images/loading.gif" mode="aspectFit" />
+      <text>加载中...</text>
+    </view>
+
+    <view wx:elif="{{filteredCustomers.length === 0}}" class="empty-state">
+      <image src="../../images/empty-customers.png" mode="aspectFit" />
+      <text class="empty-title">暂无客户</text>
+      <text class="empty-desc">点击右上角添加第一个客户</text>
+      <button class="empty-btn" bindtap="navigateToCreateCustomer">添加客户</button>
+    </view>
+
+    <view wx:else class="customer-items">
+      <block wx:for="{{filteredCustomers}}" wx:key="id">
+        <view class="customer-item" bindtap="navigateToCustomerDetail" data-id="{{item.id}}">
+          <view class="customer-avatar">
+            <image 
+              wx:if="{{item.avatar}}" 
+              src="{{item.avatar}}" 
+              mode="aspectFill" 
+            />
+            <view wx:else class="avatar-placeholder">{{item.name.charAt(0)}}</view>
+          </view>
+
+          <view class="customer-info">
+            <view class="customer-name">{{item.name}}</view>
+            <view class="customer-phone">{{item.phone}}</view>
+            <view class="customer-email">{{item.email}}</view>
+            <view class="customer-address">{{item.address || '暂无地址'}}</view>
+          </view>
+
+          <view class="customer-actions">
+            <button 
+              class="call-btn" 
+              bindtap="callCustomer" 
+              data-phone="{{item.phone}}"
+              catchtap="true"
+            >
+              <image src="../../images/phone.png" mode="aspectFit" />
+            </button>
+          </view>
+        </view>
+      </block>
+
+      <view wx:if="{{loading && customers.length > 0}}" class="load-more">
+        <image src="../../images/loading.gif" mode="aspectFit" />
+        <text>加载更多...</text>
+      </view>
+
+      <view wx:if="{{!hasMore && customers.length > 0}}" class="no-more">
+        <text>没有更多了</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

@@ -1,0 +1,24 @@
+{
+  "name": "path-maze-wechat-game",
+  "version": "1.0.0",
+  "description": "路径迷宫 - WeChat Mini Game",
+  "main": "main.js",
+  "scripts": {
+    "dev": "微信开发者工具 --open",
+    "build": "微信开发者工具 --build",
+    "upload": "微信开发者工具 --upload"
+  },
+  "keywords": [
+    "wechat",
+    "minigame",
+    "puzzle",
+    "maze",
+    "logic"
+  ],
+  "author": "PathMaze Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pathmaze/path-maze-wechat-game"
+  }
+}

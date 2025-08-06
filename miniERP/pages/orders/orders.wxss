@@ -1,0 +1,306 @@
+.container {
+  height: 100vh;
+  background-color: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+}
+
+.search-filter-bar {
+  background: white;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+}
+
+.search-input-container {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #f5f5f5;
+  border-radius: 50rpx;
+  padding: 0 20rpx;
+  margin-right: 20rpx;
+}
+
+.search-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 10rpx;
+  opacity: 0.6;
+}
+
+.search-input {
+  flex: 1;
+  height: 64rpx;
+  font-size: 28rpx;
+  color: #333;
+  background: transparent;
+  border: none;
+}
+
+.clear-icon {
+  width: 32rpx;
+  height: 32rpx;
+  opacity: 0.6;
+  padding: 10rpx;
+}
+
+.add-btn {
+  width: 64rpx;
+  height: 64rpx;
+  background: #1976D2;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.add-btn image {
+  width: 32rpx;
+  height: 32rpx;
+}
+
+.status-tabs,
+.date-tabs {
+  padding: 0 20rpx 20rpx;
+  background: white;
+}
+
+.tabs-container {
+  display: flex;
+  gap: 20rpx;
+  white-space: nowrap;
+}
+
+.tab {
+  padding: 16rpx 32rpx;
+  background: #f5f5f5;
+  color: #666;
+  border-radius: 50rpx;
+  font-size: 26rpx;
+  transition: all 0.3s;
+  border: none;
+}
+
+.tab.active {
+  background: #1976D2;
+  color: white;
+}
+
+.order-list {
+  flex: 1;
+}
+
+.loading {
+  text-align: center;
+  padding: 100rpx 0;
+  color: #999;
+}
+
+.loading image {
+  width: 60rpx;
+  height: 60rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 200rpx 0;
+  color: #999;
+}
+
+.empty-state image {
+  width: 120rpx;
+  height: 120rpx;
+  margin-bottom: 20rpx;
+  opacity: 0.5;
+}
+
+.empty-title {
+  display: block;
+  font-size: 32rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+}
+
+.empty-desc {
+  display: block;
+  font-size: 28rpx;
+  color: #999;
+  margin-bottom: 40rpx;
+}
+
+.empty-btn {
+  background: #1976D2;
+  color: white;
+  border: none;
+  border-radius: 50rpx;
+  padding: 20rpx 40rpx;
+  font-size: 28rpx;
+}
+
+.order-items {
+  padding: 20rpx;
+}
+
+.order-card {
+  background: white;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.order-number {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.order-status {
+  font-size: 24rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-weight: bold;
+}
+
+.status-pending {
+  background-color: #FFF3E0;
+  color: #FF9800;
+}
+
+.status-processing {
+  background-color: #E3F2FD;
+  color: #1976D2;
+}
+
+.status-shipped {
+  background-color: #E8F5E8;
+  color: #4CAF50;
+}
+
+.status-completed {
+  background-color: #E8F5E8;
+  color: #4CAF50;
+}
+
+.status-cancelled {
+  background-color: #FFEBEE;
+  color: #F44336;
+}
+
+.order-customer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.customer-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.customer-name {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.customer-phone {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.call-btn {
+  width: 60rpx;
+  height: 60rpx;
+  background: #E3F2FD;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.call-btn image {
+  width: 32rpx;
+  height: 32rpx;
+}
+
+.order-items-summary {
+  margin-bottom: 20rpx;
+}
+
+.item-summary {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 4rpx;
+}
+
+.more-items {
+  font-size: 24rpx;
+  color: #999;
+  font-style: italic;
+}
+
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-amount {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.amount {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #1976D2;
+}
+
+.order-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.load-more {
+  text-align: center;
+  padding: 40rpx 0;
+  color: #999;
+}
+
+.load-more image {
+  width: 40rpx;
+  height: 40rpx;
+  margin-bottom: 10rpx;
+}
+
+.no-more {
+  text-align: center;
+  padding: 40rpx 0;
+  color: #999;
+  font-size: 28rpx;
+}

@@ -1,0 +1,44 @@
+<view class="container">
+  <view class="login-container">
+    <view class="logo">
+      <image src="../../images/logo.png" mode="aspectFit" class="logo-image" />
+      <text class="app-title">迷你ERP</text>
+      <text class="app-subtitle">企业管理系统</text>
+    </view>
+
+    <view class="login-form">
+      <view class="form-group">
+        <text class="form-label">用户名</text>
+        <input 
+          class="form-input" 
+          placeholder="请输入用户名" 
+          bindinput="onUsernameInput"
+          value="{{username}}"
+        />
+      </view>
+
+      <view class="form-group">
+        <text class="form-label">密码</text>
+        <input 
+          class="form-input" 
+          password="true" 
+          placeholder="请输入密码" 
+          bindinput="onPasswordInput"
+          value="{{password}}"
+        />
+      </view>
+
+      <button 
+        class="login-btn {{loading ? 'loading' : ''}}" 
+        bindtap="onLogin"
+        disabled="{{loading}}"
+      >
+        {{loading ? '登录中...' : '登录'}}
+      </button>
+    </view>
+
+    <view class="login-footer">
+      <text class="copyright">© 2024 迷你ERP系统</text>
+    </view>
+  </view>
+</view>

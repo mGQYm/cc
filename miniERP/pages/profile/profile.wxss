@@ -1,0 +1,175 @@
+.container {
+  height: 100vh;
+  background-color: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-header {
+  background: linear-gradient(135deg, #1976D2, #42A5F5);
+  padding: 60rpx 30rpx;
+  color: white;
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  margin-right: 30rpx;
+  overflow: hidden;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-avatar image {
+  width: 100%;
+  height: 100%;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #1976D2;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  font-weight: bold;
+}
+
+.user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name {
+  font-size: 40rpx;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.user-role {
+  font-size: 28rpx;
+  opacity: 0.9;
+}
+
+.stats-section {
+  background: white;
+  padding: 40rpx 0;
+  margin-bottom: 20rpx;
+}
+
+.stats-grid {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.stat-item {
+  text-align: center;
+  flex: 1;
+  border-right: 1rpx solid #f0f0f0;
+}
+
+.stat-item:last-child {
+  border-right: none;
+}
+
+.stat-number {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #1976D2;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.stat-label {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.menu-section {
+  flex: 1;
+}
+
+.menu-list {
+  background: white;
+  border-radius: 16rpx;
+  margin: 0 20rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 30rpx 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-icon {
+  width: 48rpx;
+  height: 48rpx;
+  margin-right: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-icon image {
+  width: 100%;
+  height: 100%;
+}
+
+.menu-content {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 0;
+}
+
+.menu-title {
+  font-size: 32rpx;
+  color: #333;
+}
+
+.arrow-icon {
+  width: 24rpx;
+  height: 24rpx;
+  opacity: 0.4;
+}
+
+.version-info {
+  text-align: center;
+  padding: 40rpx 0 20rpx;
+}
+
+.version-text {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.logout-section {
+  padding: 40rpx 20rpx;
+}
+
+.logout-btn {
+  width: 100%;
+  background: #FF5252;
+  color: white;
+  border: none;
+  border-radius: 50rpx;
+  padding: 30rpx;
+  font-size: 32rpx;
+}

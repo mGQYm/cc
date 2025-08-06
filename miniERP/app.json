@@ -1,0 +1,69 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/login/login",
+    "pages/dashboard/dashboard",
+    "pages/customers/customers",
+    "pages/customers/customer-detail",
+    "pages/products/products",
+    "pages/products/product-detail",
+    "pages/orders/orders",
+    "pages/orders/order-detail",
+    "pages/orders/order-create",
+    "pages/inventory/inventory",
+    "pages/reports/reports",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#1976D2",
+    "navigationBarTitleText": "迷你ERP",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f5f5"
+  },
+  "tabBar": {
+    "color": "#666666",
+    "selectedColor": "#1976D2",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/dashboard/dashboard",
+        "iconPath": "images/home.png",
+        "selectedIconPath": "images/home-active.png",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/customers/customers",
+        "iconPath": "images/customers.png",
+        "selectedIconPath": "images/customers-active.png",
+        "text": "客户"
+      },
+      {
+        "pagePath": "pages/products/products",
+        "iconPath": "images/products.png",
+        "selectedIconPath": "images/products-active.png",
+        "text": "产品"
+      },
+      {
+        "pagePath": "pages/orders/orders",
+        "iconPath": "images/orders.png",
+        "selectedIconPath": "images/orders-active.png",
+        "text": "订单"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "iconPath": "images/profile.png",
+        "selectedIconPath": "images/profile-active.png",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于获取用户位置信息"
+    }
+  }
+}

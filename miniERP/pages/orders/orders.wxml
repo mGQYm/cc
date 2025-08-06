@@ -1,0 +1,128 @@
+<view class="container">
+  <!-- 搜索和筛选栏 -->
+  <view class="search-filter-bar">
+    <view class="search-container">
+      <view class="search-input-container">
+        <image class="search-icon" src="../../images/search.png" mode="aspectFit" />
+        <input 
+          class="search-input" 
+          placeholder="搜索订单号或客户信息" 
+          value="{{searchKeyword}}"
+          bindinput="onSearchInput"
+          confirm-type="search"
+        />
+        <image 
+          wx:if="{{searchKeyword}}" 
+          class="clear-icon" 
+          src="../../images/clear.png" 
+          mode="aspectFit" 
+          bindtap="clearSearch"
+        />
+      </view>
+      <button class="add-btn" bindtap="navigateToCreateOrder">
+        <image src="../../images/add.png" mode="aspectFit" />
+      </button>
+    </view>
+
+    <!-- 状态筛选 -->
+    <scroll-view class="status-tabs" scroll-x enable-flex>
+      <view class="tabs-container">
+        <block wx:for="{{statusOptions}}" wx:key="value">
+          <view 
+            class="tab {{statusFilter === item.value ? 'active' : ''}}"
+            bindtap="onStatusFilterChange"
+            data-status="{{item.value}}"
+          >
+            {{item.label}}
+          </view>
+        </block>
+      </view>
+    </scroll-view>
+
+    <!-- 时间筛选 -->
+    <scroll-view class="date-tabs" scroll-x enable-flex>
+      <view class="tabs-container">
+        <block wx:for="{{dateOptions}}" wx:key="value">
+          <view 
+            class="tab {{dateFilter === item.value ? 'active' : ''}}"
+            bindtap="onDateFilterChange"
+            data-date="{{item.value}}"
+          >
+            {{item.label}}
+          </view>
+        </block>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 订单列表 -->
+  <scroll-view 
+    class="order-list" 
+    scroll-y 
+    enable-back-to-top
+    bindscrolltolower="onReachBottom"
+  >
+    <view wx:if="{{loading && orders.length === 0}}" class="loading">
+      <image src="../../images/loading.gif" mode="aspectFit" />
+      <text>加载中...</text>
+    </view>
+
+    <view wx:elif="{{filteredOrders.length === 0}}" class="empty-state">
+      <image src="../../images/empty-orders.png" mode="aspectFit" />
+      <text class="empty-title">暂无订单</text>
+      <text class="empty-desc">点击右上角创建第一个订单</text>
+      <button class="empty-btn" bindtap="navigateToCreateOrder">创建订单</button>
+    </view>
+
+    <view wx:else class="order-items">
+      <block wx:for="{{filteredOrders}}" wx:key="id">
+        <view class="order-card" bindtap="navigateToOrderDetail" data-id="{{item.id}}">
+          <view class="order-header">
+            <view class="order-number">订单 #{{item.orderNumber}}</view>
+            <view class="order-status status-{{item.status}}">{{item.statusText}}</view>
+          </view>
+
+          <view class="order-customer">
+            <view class="customer-info">
+              <text class="customer-name">{{item.customer.name}}</text>
+              <text class="customer-phone">{{item.customer.phone}}</text>
+            </view>
+            <button 
+              class="call-btn" 
+              bindtap="callCustomer" 
+              data-phone="{{item.customer.phone}}"
+              catchtap="true"
+            >
+              <image src="../../images/phone.png" mode="aspectFit" />
+            </button>
+          </view>
+
+          <view class="order-items-summary">
+            <block wx:for="{{item.items.slice(0, 3)}}" wx:key="id">
+              <view class="item-summary">{{item.productName}} x{{item.quantity}}</view>
+            </block>
+            <view wx:if="{{item.items.length > 3}}" class="more-items">
+              共{{item.items.length}}件商品
+            </view>
+          </view>
+
+          <view class="order-footer">
+            <view class="order-amount">
+              总金额: <text class="amount">¥{{item.totalAmount}}</text>
+            </view>
+            <view class="order-time">{{item.createdAt}}</view>
+          </view>
+        </view>
+      </block>
+
+      <view wx:if="{{loading && orders.length > 0}}" class="load-more">
+        <image src="../../images/loading.gif" mode="aspectFit" />
+        <text>加载更多...</text>
+      </view>
+
+      <view wx:if="{{!hasMore && orders.length > 0}}" class="no-more">
+        <text>没有更多了</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

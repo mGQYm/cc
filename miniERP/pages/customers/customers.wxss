@@ -1,0 +1,228 @@
+.container {
+  height: 100vh;
+  background-color: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background: white;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.search-input-container {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #f5f5f5;
+  border-radius: 50rpx;
+  padding: 0 20rpx;
+  margin-right: 20rpx;
+}
+
+.search-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 10rpx;
+  opacity: 0.6;
+}
+
+.search-input {
+  flex: 1;
+  height: 64rpx;
+  font-size: 28rpx;
+  color: #333;
+  background: transparent;
+  border: none;
+}
+
+.clear-icon {
+  width: 32rpx;
+  height: 32rpx;
+  opacity: 0.6;
+  padding: 10rpx;
+}
+
+.add-btn {
+  width: 64rpx;
+  height: 64rpx;
+  background: #1976D2;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.add-btn image {
+  width: 32rpx;
+  height: 32rpx;
+}
+
+.customer-list {
+  flex: 1;
+}
+
+.loading {
+  text-align: center;
+  padding: 100rpx 0;
+  color: #999;
+}
+
+.loading image {
+  width: 60rpx;
+  height: 60rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 200rpx 0;
+  color: #999;
+}
+
+.empty-state image {
+  width: 120rpx;
+  height: 120rpx;
+  margin-bottom: 20rpx;
+  opacity: 0.5;
+}
+
+.empty-title {
+  display: block;
+  font-size: 32rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+}
+
+.empty-desc {
+  display: block;
+  font-size: 28rpx;
+  color: #999;
+  margin-bottom: 40rpx;
+}
+
+.empty-btn {
+  background: #1976D2;
+  color: white;
+  border: none;
+  border-radius: 50rpx;
+  padding: 20rpx 40rpx;
+  font-size: 28rpx;
+}
+
+.customer-items {
+  padding: 20rpx;
+}
+
+.customer-item {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.customer-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  overflow: hidden;
+}
+
+.customer-avatar image {
+  width: 100%;
+  height: 100%;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #1976D2;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.customer-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.customer-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.customer-phone {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 4rpx;
+}
+
+.customer-email {
+  font-size: 26rpx;
+  color: #999;
+  margin-bottom: 4rpx;
+}
+
+.customer-address {
+  font-size: 26rpx;
+  color: #999;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.customer-actions {
+  margin-left: 20rpx;
+}
+
+.call-btn {
+  width: 60rpx;
+  height: 60rpx;
+  background: #E3F2FD;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.call-btn image {
+  width: 32rpx;
+  height: 32rpx;
+}
+
+.load-more {
+  text-align: center;
+  padding: 40rpx 0;
+  color: #999;
+}
+
+.load-more image {
+  width: 40rpx;
+  height: 40rpx;
+  margin-bottom: 10rpx;
+}
+
+.no-more {
+  text-align: center;
+  padding: 40rpx 0;
+  color: #999;
+  font-size: 28rpx;
+}

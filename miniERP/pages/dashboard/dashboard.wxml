@@ -1,0 +1,131 @@
+<view class="container">
+  <view class="header">
+    <view class="greeting">
+      <text class="greeting-text">欢迎回来</text>
+      <text class="user-name">{{getApp().globalData.userInfo?.name || '用户'}}</text>
+    </view>
+    <view class="date-time">
+      <text class="date">{{currentDate}}</text>
+    </view>
+  </view>
+
+  <scroll-view class="dashboard-content" scroll-y enable-back-to-top>
+    <!-- 统计卡片 -->
+    <view class="stats-section">
+      <view class="section-title">经营概览</view>
+      <view class="stats-grid">
+        <view class="stat-card" bindtap="navigateToCustomers">
+          <view class="stat-icon customers">
+            <image src="../../images/customers-icon.png" mode="aspectFit" />
+          </view>
+          <view class="stat-content">
+            <text class="stat-number">{{statistics.totalCustomers}}</text>
+            <text class="stat-label">总客户数</text>
+          </view>
+        </view>
+
+        <view class="stat-card" bindtap="navigateToProducts">
+          <view class="stat-icon products">
+            <image src="../../images/products-icon.png" mode="aspectFit" />
+          </view>
+          <view class="stat-content">
+            <text class="stat-number">{{statistics.totalProducts}}</text>
+            <text class="stat-label">总产品数</text>
+          </view>
+        </view>
+
+        <view class="stat-card" bindtap="navigateToOrders">
+          <view class="stat-icon orders">
+            <image src="../../images/orders-icon.png" mode="aspectFit" />
+          </view>
+          <view class="stat-content">
+            <text class="stat-number">{{statistics.totalOrders}}</text>
+            <text class="stat-label">总订单数</text>
+          </view>
+        </view>
+
+        <view class="stat-card">
+          <view class="stat-icon revenue">
+            <image src="../../images/revenue-icon.png" mode="aspectFit" />
+          </view>
+          <view class="stat-content">
+            <text class="stat-number">¥{{statistics.totalRevenue}}</text>
+            <text class="stat-label">总收入</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 快捷操作 -->
+    <view class="quick-actions">
+      <view class="section-title">快捷操作</view>
+      <view class="actions-grid">
+        <button class="action-btn" bindtap="createOrder">
+          <image src="../../images/add-order.png" mode="aspectFit" />
+          <text>新建订单</text>
+        </button>
+        <button class="action-btn" bindtap="navigateToCustomers">
+          <image src="../../images/add-customer.png" mode="aspectFit" />
+          <text>添加客户</text>
+        </button>
+        <button class="action-btn" bindtap="navigateToProducts">
+          <image src="../../images/add-product.png" mode="aspectFit" />
+          <text>添加产品</text>
+        </button>
+      </view>
+    </view>
+
+    <!-- 最近订单 -->
+    <view class="recent-section">
+      <view class="section-header">
+        <text class="section-title">最近订单</text>
+        <text class="view-all" bindtap="navigateToOrders">查看全部</text>
+      </view>
+      <view class="recent-list">
+        <block wx:for="{{recentOrders}}" wx:key="id">
+          <view class="recent-item" bindtap="navigateToOrderDetail" data-id="{{item.id}}">
+            <view class="item-header">
+              <text class="item-title">订单 #{{item.orderNumber}}</text>
+              <text class="item-status status-{{item.status}}">{{item.statusText}}</text>
+            </view>
+            <view class="item-content">
+              <text class="item-customer">{{item.customerName}}</text>
+              <text class="item-amount">¥{{item.totalAmount}}</text>
+            </view>
+            <view class="item-time">{{item.createdAt}}</view>
+          </view>
+        </block>
+        <view wx:if="{{recentOrders.length === 0}}" class="empty-state">
+          <image src="../../images/empty-orders.png" mode="aspectFit" />
+          <text>暂无订单</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 最近客户 -->
+    <view class="recent-section">
+      <view class="section-header">
+        <text class="section-title">最近客户</text>
+        <text class="view-all" bindtap="navigateToCustomers">查看全部</text>
+      </view>
+      <view class="recent-list">
+        <block wx:for="{{recentCustomers}}" wx:key="id">
+          <view class="recent-item" bindtap="navigateToCustomerDetail" data-id="{{item.id}}">
+            <view class="item-header">
+              <text class="item-title">{{item.name}}</text>
+              <text class="item-phone">{{item.phone}}</text>
+            </view>
+            <view class="item-content">
+              <text class="item-email">{{item.email}}</text>
+            </view>
+            <view class="item-time">{{item.createdAt}}</view>
+          </view>
+        </block>
+        <view wx:if="{{recentCustomers.length === 0}}" class="empty-state">
+          <image src="../../images/empty-customers.png" mode="aspectFit" />
+          <text>暂无客户</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</view>
