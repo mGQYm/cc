@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="ETF长盈计划">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="format-detection" content="telephone=no">
+    <title>ETF长盈计划 - 量化投资助手</title>
+    <meta name="description" content="基于量化策略的ETF投资分析工具，提供实时市场数据和投资建议">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" >
+    <style>
+        /* 基础样式 - 确保移动端有基本样式 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.6; }
+        .container { max-width: 100%; margin: 0 auto; padding: 0 16px; }
+        header { background: linear-gradient(135deg, #2563eb, #3b82f6); color: white; padding: 32px 20px; margin-bottom: 24px; text-align: center; }
+        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .market-item, .metric, .allocation-item { background: #f1f5f9; padding: 16px; margin: 8px 0; border-radius: 8px; }
+        .btn { background: #2563eb; color: white; padding: 14px 24px; border: none; border-radius: 8px; cursor: pointer; margin: 8px; }
+        .controls { display: flex; justify-content: center; flex-wrap: wrap; margin: 24px 0; }
+        @media (max-width: 768px) { .container { padding: 0 12px; } .card { padding: 16px; } }
+    </style>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0iIzI1NjNlYiIvPgo8cGF0aCBkPSJNOCAyMC41TDEyIDE2VjhIMTRWMTZMMTggMjAuNUwyMCAyMEwxNiAxMkw4IDIwTDggMjAuNVoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-chart-line"></i> ETF长盈计划</h1>
+            <p class="subtitle">基于量化策略的智能投资助手</p>
+        </header>
+
+        <div class="dashboard">
+            <div class="card market-overview">
+                <h2>市场概览</h2>
+                <div class="market-grid">
+                    <div class="market-item">
+                        <span class="label">沪深300</span>
+                        <span class="value" id="csi300">--</span>
+                        <span class="change" id="csi300-change">--</span>
+                    </div>
+                    <div class="market-item">
+                        <span class="label">中证500</span>
+                        <span class="value" id="csi500">--</span>
+                        <span class="change" id="csi500-change">--</span>
+                    </div>
+                    <div class="market-item">
+                        <span class="label">创业板指</span>
+                        <span class="value" id="chi-next">--</span>
+                        <span class="change" id="chi-next-change">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card strategy-analysis">
+                <h2>策略分析</h2>
+                <div class="strategy-metrics">
+                    <div class="metric">
+                        <span class="metric-label">当前估值</span>
+                        <span class="metric-value" id="pe-ratio">--</span>
+                        <span class="metric-desc">PE分位数</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">趋势强度</span>
+                        <span class="metric-value" id="trend-strength">--</span>
+                        <span class="metric-desc">20日均线</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">波动率</span>
+                        <span class="metric-value" id="volatility">--</span>
+                        <span class="metric-desc">年化波动</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card investment-advice">
+                <h2>投资建议</h2>
+                <div class="advice-container">
+                    <div class="advice-level" id="advice-level">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>加载中...</span>
+                    </div>
+                    <div class="advice-detail" id="advice-detail">
+                        正在分析市场数据...
+                    </div>
+                    <div class="allocation-suggestion">
+                        <h3>资金配置建议</h3>
+                        <div class="allocation-grid">
+                            <div class="allocation-item">
+                                <span>沪深300ETF</span>
+                                <span id="csi300-allocation">--</span>
+                            </div>
+                            <div class="allocation-item">
+                                <span>中证500ETF</span>
+                                <span id="csi500-allocation">--</span>
+                            </div>
+                            <div class="allocation-item">
+                                <span>创业板ETF</span>
+                                <span id="chinext-allocation">--</span>
+                            </div>
+                            <div class="allocation-item">
+                                <span>货币基金</span>
+                                <span id="money-allocation">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card backtesting">
+                <h2>回测表现</h2>
+                <div class="backtesting-stats">
+                    <div class="stat">
+                        <span class="stat-label">年化收益</span>
+                        <span class="stat-value positive" id="annual-return">+12.5%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">最大回撤</span>
+                        <span class="stat-value negative" id="max-drawdown">-8.3%</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">夏普比率</span>
+                        <span class="stat-value" id="sharpe-ratio">1.42</span>
+                    </div>
+                </div>
+                <canvas id="performance-chart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="updateAnalysis()">
+                <i class="fas fa-sync"></i> 更新分析
+            </button>
+            <button class="btn btn-secondary" onclick="showSettings()">
+                <i class="fas fa-cog"></i> 设置
+            </button>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSettings()">&times;</span>
+            <h2>投资设置</h2>
+            <div class="form-group">
+                <label>风险承受能力</label>
+                <select id="risk-tolerance">
+                    <option value="conservative">保守型</option>
+                    <option value="moderate" selected>稳健型</option>
+                    <option value="aggressive">积极型</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>投资期限</label>
+                <select id="investment-horizon">
+                    <option value="short">短期(1年内)</option>
+                    <option value="medium" selected>中期(1-3年)</option>
+                    <option value="long">长期(3年以上)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>每月投资额(元)</label>
+                <input type="number" id="monthly-investment" value="5000" min="100" step="100">
+            </div>
+            <button class="btn btn-primary" onclick="saveSettings()">保存设置</button>
+        </div>
+    </div>
+
+    <script src="etf-analyzer.js"></script>
+</body>
+</html>

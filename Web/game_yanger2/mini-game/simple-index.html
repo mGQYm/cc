@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>农场消消乐 - 简易版</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+            background: linear-gradient(135deg, #a8e6cf, #dcedc8);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin: 10px 0;
+        }
+        
+        p {
+            font-size: 14px;
+            margin: 5px 0;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            font-size: 12px;
+        }
+        
+        .header div {
+            margin: 2px 0;
+        }
+        
+        .game-area {
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            height: 320px;
+            margin: 0 auto 10px;
+            overflow: hidden;
+        }
+        
+        .block {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            touch-action: manipulation;
+        }
+        
+        .block:hover {
+            transform: scale(1.05);
+        }
+        
+        .block.clickable {
+            background: white;
+            border: 1px solid #4caf50;
+            cursor: pointer;
+        }
+        
+        .block.hidden {
+            background: #ccc;
+            border: 1px solid #999;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .slots {
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+        }
+        
+        .slots h3 {
+            font-size: 16px;
+            margin: 0 0 10px 0;
+        }
+        
+        .slots p {
+            font-size: 12px;
+            margin: 0 0 10px 0;
+        }
+        
+        .slot-container {
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+            flex-wrap: wrap;
+        }
+        
+        .slot {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: #f5f5f5;
+            margin: 1px;
+        }
+        
+        .slot.filled {
+            background: #e8f5e8;
+            border-color: #4caf50;
+        }
+        
+        .btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 2px;
+            font-size: 12px;
+            touch-action: manipulation;
+        }
+        
+        .btn:hover {
+            background: #45a049;
+        }
+        
+        .message {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 14px;
+        }
+        
+        /* iPhone specific optimizations */
+        @media screen and (max-width: 375px) {
+            body {
+                padding: 5px;
+            }
+            
+            .game-area {
+                max-width: 280px;
+                height: 280px;
+            }
+            
+            .block {
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+            }
+            
+            .slot {
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+            }
+            
+            .header {
+                font-size: 11px;
+                padding: 8px;
+            }
+        }
+        
+        /* iPhone SE and smaller */
+        @media screen and (max-width: 320px) {
+            .game-area {
+                max-width: 250px;
+                height: 250px;
+            }
+            
+            .block {
+                width: 30px;
+                height: 30px;
+                font-size: 16px;
+            }
+            
+            .slot {
+                width: 30px;
+                height: 30px;
+                font-size: 16px;
+            }
+        }
+        
+        /* Prevent zoom on double tap */
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐑 农场消消乐</h1>
+        <p>点击可见方块，3个相同图案可消除</p>
+        
+        <div class="header">
+            <div>关卡: <span id="level">1</span></div>
+            <div>得分: <span id="score">0</span></div>
+            <div>步数: <span id="moves">0</span></div>
+            <button class="btn" onclick="restartGame()">重新开始</button>
+        </div>
+        
+        <div class="game-area" id="gameArea"></div>
+        
+        <div class="slots">
+            <h3>收集槽位 (7个位置)</h3>
+            <div id="slotsContainer"></div>
+        </div>
+        
+        <div id="gameMessage" class="message" style="display:none;"></div>
+    </div>
+
+    <script>
+        const PATTERNS = ['🐑', '🌱', '🏠', '🐄', '🐷', '🐔', '🦆', '🐎', '🐕', '🐈', '🌳', '🌸', '☀️', '🌙', '⭐', '☁️'];
+        const PATTERN_NAMES = ['sheep', 'grass', 'barn', 'cow', 'pig', 'chicken', 'duck', 'horse', 'dog', 'cat', 'tree', 'flower', 'sun', 'moon', 'star', 'cloud'];
+        
+        let gameState = {
+            blocks: [],
+            slots: [],
+            score: 0,
+            moves: 0,
+            level: 1,
+            gameStatus: 'playing'
+        };
+
+        function getGameDimensions() {
+            const gameArea = document.querySelector('.game-area');
+            const width = gameArea.offsetWidth;
+            const height = gameArea.offsetHeight;
+            
+            // iPhone responsive sizing
+            if (window.innerWidth <= 320) {
+                return { blockSize: 30, gameSize: 250, maxGrid: 6 };
+            } else if (window.innerWidth <= 375) {
+                return { blockSize: 35, gameSize: 280, maxGrid: 6 };
+            } else {
+                return { blockSize: 40, gameSize: 320, maxGrid: 6 };
+            }
+        }
+
+        function initGame() {
+            gameState = {
+                blocks: [],
+                slots: [],
+                score: 0,
+                moves: 0,
+                level: 1,
+                gameStatus: 'playing'
+            };
+            generateLevel(gameState.level);
+            renderGame();
+        }
+
+        function generateLevel(level) {
+            const layers = Math.min(3 + Math.floor(level / 2), 5);
+            const gridSize = Math.min(4 + Math.floor(level / 2), 6);
+            const patternCount = Math.max(16 - level, 8);
+            const dims = getGameDimensions();
+            
+            gameState.blocks = [];
+            
+            for (let layer = 0; layer < layers; layer++) {
+                for (let y = 0; y < gridSize; y++) {
+                    for (let x = 0; x < gridSize; x++) {
+                        if (Math.random() > 0.3) {
+                            const patternIndex = Math.floor(Math.random() * patternCount);
+                            gameState.blocks.push({
+                                id: `block-${x}-${y}-${layer}`,
+                                x: x,
+                                y: y,
+                                z: layer,
+                                pattern: PATTERN_NAMES[patternIndex],
+                                emoji: PATTERNS[patternIndex],
+                                visible: layer === layers - 1
+                            });
+                        }
+                    }
+                }
+            }
+            
+            updateVisibility();
+        }
+
+        function updateVisibility() {
+            const topBlocks = {};
+            
+            gameState.blocks.forEach(block => {
+                const key = `${block.x}-${block.y}`;
+                if (!topBlocks[key] || block.z > topBlocks[key].z) {
+                    topBlocks[key] = block;
+                }
+            });
+            
+            gameState.blocks.forEach(block => {
+                const key = `${block.x}-${block.y}`;
+                block.visible = topBlocks[key] === block;
+            });
+        }
+
+        function renderGame() {
+            const gameArea = document.getElementById('gameArea');
+            const slotsContainer = document.getElementById('slotsContainer');
+            const dims = getGameDimensions();
+            
+            // Calculate spacing based on available space
+            const gridSize = Math.min(4 + Math.floor(gameState.level / 2), 6);
+            const spacing = Math.floor((dims.gameSize - 20) / gridSize);
+            const offset = 10;
+            
+            // Render blocks
+            gameArea.innerHTML = '';
+            gameState.blocks.forEach(block => {
+                const div = document.createElement('div');
+                div.className = `block ${block.visible ? 'clickable' : 'hidden'}`;
+                div.style.left = `${block.x * spacing + offset}px`;
+                div.style.top = `${block.y * spacing + offset}px`;
+                div.style.zIndex = block.z + 10;
+                div.textContent = block.emoji;
+                div.onclick = () => selectBlock(block.id);
+                gameArea.appendChild(div);
+            });
+            
+            // Render slots
+            slotsContainer.innerHTML = '';
+            slotsContainer.className = 'slot-container';
+            for (let i = 0; i < 7; i++) {
+                const slot = document.createElement('div');
+                slot.className = `slot ${gameState.slots[i] ? 'filled' : ''}`;
+                slot.textContent = gameState.slots[i] ? PATTERNS[PATTERN_NAMES.indexOf(gameState.slots[i])] : '';
+                slotsContainer.appendChild(slot);
+            }
+            
+            // Update stats
+            document.getElementById('level').textContent = gameState.level;
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('moves').textContent = gameState.moves;
+            
+            // Check game status
+            checkGameStatus();
+        }
+
+        function selectBlock(blockId) {
+            if (gameState.gameStatus !== 'playing') return;
+            
+            const block = gameState.blocks.find(b => b.id === blockId);
+            if (!block || !block.visible) return;
+            
+            gameState.blocks = gameState.blocks.filter(b => b.id !== blockId);
+            gameState.slots.push(block.pattern);
+            gameState.moves++;
+            
+            updateVisibility();
+            checkElimination();
+            renderGame();
+        }
+
+        function checkElimination() {
+            const counts = {};
+            gameState.slots.forEach(pattern => {
+                counts[pattern] = (counts[pattern] || 0) + 1;
+            });
+            
+            let eliminated = 0;
+            for (const pattern in counts) {
+                if (counts[pattern] >= 3) {
+                    gameState.slots = gameState.slots.filter(p => p !== pattern);
+                    gameState.score += 30;
+                    eliminated++;
+                }
+            }
+        }
+
+        function checkGameStatus() {
+            if (gameState.blocks.length === 0) {
+                if (gameState.level === 5) {
+                    gameState.gameStatus = 'completed';
+                    showMessage('🎉 恭喜通关所有关卡！');
+                } else {
+                    gameState.gameStatus = 'won';
+                    showMessage('🎊 关卡完成！');
+                    setTimeout(() => {
+                        gameState.level++;
+                        generateLevel(gameState.level);
+                        gameState.gameStatus = 'playing';
+                        renderGame();
+                    }, 2000);
+                }
+            } else if (gameState.slots.length >= 7) {
+                gameState.gameStatus = 'lost';
+                showMessage('😅 游戏失败！槽位已满');
+            }
+        }
+
+        function showMessage(text) {
+            const message = document.getElementById('gameMessage');
+            message.textContent = text;
+            message.style.display = 'block';
+            
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 3000);
+        }
+
+        function restartGame() {
+            gameState.gameStatus = 'playing';
+            initGame();
+        }
+
+        // Initialize game on load
+        initGame();
+    </script>
+</body>
+</html>
