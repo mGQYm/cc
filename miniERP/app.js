@@ -1,7 +1,7 @@
 App({
   globalData: {
-    userInfo: null,
-    isLoggedIn: false,
+    userInfo: { name: '管理员', role: 'admin' },
+    isLoggedIn: true,
     baseUrl: 'https://your-api-domain.com/api',
     version: '1.0.0'
   },
@@ -12,63 +12,36 @@ App({
   },
 
   checkLoginStatus() {
-    const token = wx.getStorageSync('token')
-    if (token) {
-      this.validateToken(token)
-    }
+    // 跳过登录验证，直接设置为已登录
+    this.globalData.isLoggedIn = true
+    this.globalData.userInfo = { name: '管理员', role: 'admin' }
   },
 
   validateToken(token) {
-    wx.request({
-      url: `${this.globalData.baseUrl}/auth/validate`,
-      method: 'POST',
-      header: {
-        'Authorization': `Bearer ${token}`
-      },
-      success: (res) => {
-        if (res.statusCode === 200) {
-          this.globalData.isLoggedIn = true
-          this.globalData.userInfo = res.data.user
-        } else {
-          wx.removeStorageSync('token')
-        }
-      }
-    })
+    // 跳过token验证
+    this.globalData.isLoggedIn = true
+    this.globalData.userInfo = { name: '管理员', role: 'admin' }
   },
 
   login(username, password) {
-    return new Promise((resolve, reject) => {
-      wx.request({
-        url: `${this.globalData.baseUrl}/auth/login`,
-        method: 'POST',
-        data: { username, password },
-        success: (res) => {
-          if (res.statusCode === 200) {
-            const { token, user } = res.data
-            wx.setStorageSync('token', token)
-            this.globalData.isLoggedIn = true
-            this.globalData.userInfo = user
-            resolve(res.data)
-          } else {
-            reject(res.data.message || '登录失败')
-          }
-        },
-        fail: reject
-      })
+    return new Promise((resolve) => {
+      // 跳过登录验证，直接成功
+      this.globalData.isLoggedIn = true
+      this.globalData.userInfo = { name: username || '管理员', role: 'admin' }
+      resolve({ user: this.globalData.userInfo })
     })
   },
 
   logout() {
-    wx.removeStorageSync('token')
-    this.globalData.isLoggedIn = false
-    this.globalData.userInfo = null
+    // 跳过登出，直接返回首页
+    this.globalData.isLoggedIn = true
+    this.globalData.userInfo = { name: '管理员', role: 'admin' }
     wx.reLaunch({
-      url: '/pages/login/login'
+      url: '/pages/dashboard/dashboard'
     })
   },
 
   request(options) {
-    const token = wx.getStorageSync('token')
     return new Promise((resolve, reject) => {
       wx.request({
         url: `${this.globalData.baseUrl}${options.url}`,
@@ -76,15 +49,11 @@ App({
         data: options.data || {},
         header: {
           'Content-Type': 'application/json',
-          'Authorization': token ? `Bearer ${token}` : '',
           ...options.header
         },
         success: (res) => {
           if (res.statusCode === 200) {
             resolve(res.data)
-          } else if (res.statusCode === 401) {
-            this.logout()
-            reject(new Error('登录已过期'))
           } else {
             reject(new Error(res.data.message || '请求失败'))
           }

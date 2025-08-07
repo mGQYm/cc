@@ -1,8 +1,8 @@
 {
   "pages": [
+    "pages/dashboard/dashboard",
     "pages/index/index",
     "pages/login/login",
-    "pages/dashboard/dashboard",
     "pages/customers/customers",
     "pages/customers/customer-detail",
     "pages/products/products",
