@@ -1,0 +1,44 @@
+[
+  {
+    "id": "1",
+    "name": "Laptop Computer",
+    "price": 899.99,
+    "category": "Electronics",
+    "description": "High-performance laptop with 16GB RAM and 512GB SSD"
+  },
+  {
+    "id": "2",
+    "name": "Wireless Mouse",
+    "price": 29.99,
+    "category": "Accessories",
+    "description": "Ergonomic wireless mouse with USB receiver"
+  },
+  {
+    "id": "3",
+    "name": "Office Chair",
+    "price": 199.99,
+    "category": "Furniture",
+    "description": "Comfortable ergonomic office chair with lumbar support"
+  },
+  {
+    "id": "4",
+    "name": "Desk Lamp",
+    "price": 45.99,
+    "category": "Lighting",
+    "description": "LED desk lamp with adjustable brightness"
+  },
+  {
+    "id": "5",
+    "name": "Monitor Stand",
+    "price": 79.99,
+    "category": "Accessories",
+    "description": "Adjustable monitor stand for ergonomic viewing"
+  },
+  {
+    "name": "Test Product",
+    "price": 99.99,
+    "category": "Test",
+    "description": "Test product",
+    "id": "1754583664024"
+  }
+]
