@@ -2,7 +2,7 @@
   <view class="header">
     <view class="greeting">
       <text class="greeting-text">欢迎回来</text>
-      <text class="user-name">{{getApp().globalData.userInfo?.name || '用户'}}</text>
+      <text class="user-name">{{(getApp().globalData.userInfo && getApp().globalData.userInfo.name) || '用户'}}</text>
     </view>
     <view class="date-time">
       <text class="date">{{currentDate}}</text>
