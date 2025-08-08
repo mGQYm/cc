@@ -29,50 +29,79 @@ export default function SignIn() {
 
   if (session) return null;
 
+  const getProviderIcon = (providerName: string) => {
+    switch (providerName.toLowerCase()) {
+      case 'google':
+        return '🌈';
+      case 'github':
+        return '🐙';
+      default:
+        return '🔑';
+    }
+  };
+
+  const getProviderColor = (providerName: string) => {
+    switch (providerName.toLowerCase()) {
+      case 'google':
+        return 'bg-red-500 hover:bg-red-600';
+      case 'github':
+        return 'bg-gray-800 hover:bg-gray-900';
+      default:
+        return 'bg-blue-600 hover:bg-blue-700';
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            登录 TripCraft
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-3xl">✈️</span>
+          </div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            欢迎回来
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            开始规划您的完美旅程
+          <p className="text-gray-600">
+            登录 TripCraft，开始您的旅行规划之旅
           </p>
         </div>
-        <div className="mt-8 bg-white py-8 px-4 shadow-lg rounded-lg sm:px-10">
-          <div className="space-y-6">
+
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          <div className="space-y-4">
             {providers &&
               Object.values(providers).map((provider: any) => (
-                <div key={provider.name}>
-                  <button
-                    onClick={() => signIn(provider.id, { callbackUrl: '/' })}
-                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-                  >
-                    使用 {provider.name} 登录
-                  </button>
-                </div>
+                <button
+                  key={provider.name}
+                  onClick={() => signIn(provider.id, { callbackUrl: '/' })}
+                  className={`w-full flex items-center justify-center py-3 px-4 rounded-lg text-white font-medium transition-colors ${getProviderColor(provider.name)}`}
+                >
+                  <span className="mr-2 text-xl">{getProviderIcon(provider.name)}</span>
+                  使用 {provider.name} 登录
+                </button>
               ))}
             
             {!providers && (
-              <div className="text-center text-gray-500">
-                正在加载登录选项...
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-4 text-gray-500">正在加载登录选项...</p>
               </div>
             )}
           </div>
-          
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
-                  无需注册，一键登录
-                </span>
-              </div>
-            </div>
+
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <p className="text-xs text-center text-gray-500">
+              通过点击登录，即表示您同意我们的服务条款和隐私政策
+            </p>
           </div>
+        </div>
+
+        <div className="text-center mt-4">
+          <p className="text-sm text-gray-600">
+            还没有账户？
+            <span className="text-blue-600 font-medium ml-1">
+              无需注册，使用社交账号一键登录
+            </span>
+          </p>
         </div>
       </div>
     </div>

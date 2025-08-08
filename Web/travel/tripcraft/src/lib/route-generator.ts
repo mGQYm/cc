@@ -108,7 +108,7 @@ export class RouteGenerator {
     }
 
     return {
-      id: `route_${Date.now()}_classic`,
+      id: `rt_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
       user_id: 'system',
       title: `${location}经典${days}日游`,
       description: `精选${location}必游景点，合理安排时间，深度体验当地文化`,
@@ -147,7 +147,7 @@ export class RouteGenerator {
     }
 
     return {
-      id: `route_${Date.now()}_food`,
+      id: `rt_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
       user_id: 'system',
       title: `${location}美食${days}日游`,
       description: `品尝${location}地道美食，体验舌尖上的旅行`,
@@ -185,7 +185,7 @@ export class RouteGenerator {
     }
 
     return {
-      id: `route_${Date.now()}_balanced`,
+      id: `rt_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
       user_id: 'system',
       title: `${location}精选${days}日游`,
       description: `平衡安排景点、美食、购物，轻松享受${location}之旅`,
@@ -212,7 +212,7 @@ export class RouteGenerator {
     }
 
     return {
-      id: `route_${Date.now()}_empty`,
+      id: `rt_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
       user_id: 'system',
       title: `${location}${days}日游`,
       description: `请添加您想去的景点`,
@@ -240,7 +240,7 @@ export class RouteGenerator {
     }
 
     return {
-      id: `route_${Date.now()}_basic`,
+      id: `rt_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
       user_id: 'system',
       title: `${location}基础${days}日游`,
       description: `基础${location}旅游路线`,

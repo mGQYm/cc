@@ -32,10 +32,28 @@ export function RouteToolbar({ route, onSave }: RouteToolbarProps) {
     setTimeout(() => setShowSaveSuccess(false), 3000);
   };
 
-  const handleShare = () => {
-    const url = `${window.location.origin}/share/${route.id}`;
-    setShareUrl(url);
-    setShowShareModal(true);
+  const handleShare = async () => {
+    if (!route.id) {
+      alert('请先保存路线再分享');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/routes/${route.id}/share`, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create share link');
+      }
+
+      const { share_url } = await response.json();
+      setShareUrl(share_url);
+      setShowShareModal(true);
+    } catch (error) {
+      console.error('Error creating share link:', error);
+      alert('创建分享链接失败，请重试');
+    }
   };
 
   const handleCopyLink = () => {

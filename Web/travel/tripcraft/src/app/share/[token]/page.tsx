@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { MapPreview } from '@/components/MapPreview';
 import { TimelineEditor } from '@/components/TimelineEditor';
-import { api } from '@/lib/api';
 import type { Route } from '@/types';
 
 export default function SharedRoutePage() {
@@ -25,8 +24,13 @@ export default function SharedRoutePage() {
   const loadSharedRoute = async () => {
     try {
       setIsLoading(true);
-      const data = await api.getSharedRoute(token);
-      setRoute(data);
+      const response = await fetch(`/api/share/${token}`);
+      if (!response.ok) {
+        throw new Error('Failed to load shared route');
+      }
+      
+      const { route: routeData } = await response.json();
+      setRoute(routeData);
     } catch (err) {
       setError('无法加载分享的路线，可能已被删除或未公开');
     } finally {

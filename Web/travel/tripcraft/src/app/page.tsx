@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession, signIn, signOut } from 'next-auth/react';
 import DestinationInput from '@/components/DestinationInput';
 import PreferencesSelector from '@/components/PreferencesSelector';
 import RouteCard from '@/components/RouteCard';
@@ -10,6 +11,7 @@ import type { Route, RouteGenerationRequest } from '@/types';
 
 export default function HomePage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [destination, setDestination] = useState('');
   const [preferences, setPreferences] = useState({
     days: 3,
@@ -25,26 +27,124 @@ export default function HomePage() {
 
     setIsLoading(true);
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const request: RouteGenerationRequest = {
+        location: destination,
+        days: preferences.days,
+        interests: preferences.interests,
+        budget_level: preferences.budgetLevel,
+      };
 
-    const request: RouteGenerationRequest = {
-      location: destination,
-      days: preferences.days,
-      interests: preferences.interests,
-      budgetLevel: preferences.budgetLevel,
-    };
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+      });
 
-    const generatedRoutes = RouteGenerator.generateRoutes(request);
-    setRoutes(generatedRoutes);
-    setShowResults(true);
-    setIsLoading(false);
+      if (!response.ok) {
+        throw new Error('Failed to generate routes');
+      }
+
+      const { routes } = await response.json();
+      setRoutes(routes);
+      setShowResults(true);
+    } catch (error) {
+      console.error('Error generating routes:', error);
+      alert('生成路线失败，请重试');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSelectRoute = (route: Route) => {
-    // Store route in localStorage for editor page
-    localStorage.setItem('selectedRoute', JSON.stringify(route));
-    router.push('/editor');
+  const handleSelectRoute = async (route: Route) => {
+    if (!session) {
+      router.push('/auth/signin');
+      return;
+    }
+    
+    try {
+      // Save route to database
+      const response = await fetch('/api/routes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: route.title,
+          description: route.description,
+          location: route.location,
+          days: route.days,
+          total_days: route.total_days,
+          interests: route.interests,
+          budget_level: route.budget_level,
+          user_id: session.user?.id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save route');
+      }
+
+      const { route: savedRoute } = await response.json();
+      
+      // Redirect to editor with route ID
+      router.push(`/editor?id=${savedRoute.id}`);
+    } catch (error) {
+      console.error('Error saving route:', error);
+      alert('保存路线失败，请重试');
+    }
+  };
+
+  const UserMenu = () => {
+    if (status === 'loading') {
+      return (
+        <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
+      );
+    }
+
+    if (session?.user) {
+      return (
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            {session.user.image && (
+              <img 
+                src={session.user.image} 
+                alt={session.user.name || 'User'} 
+                className="w-8 h-8 rounded-full"
+              />
+            )}
+            <span className="text-sm text-gray-700 hidden md:block">
+              {session.user.name || session.user.email}
+            </span>
+          </div>
+          <button
+            onClick={() => signOut()}
+            className="text-sm text-red-600 hover:text-red-800 transition-colors"
+          >
+            退出
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex space-x-4">
+        <button
+          onClick={() => signIn()}
+          className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+        >
+          登录
+        </button>
+        <button
+          onClick={() => signIn()}
+          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          注册
+        </button>
+      </div>
+    );
   };
 
   return (
@@ -56,16 +156,19 @@ export default function HomePage() {
             <div className="text-2xl font-bold text-blue-600">
               TripCraft
             </div>
-            <nav className="flex space-x-6">
+            <nav className="flex items-center space-x-6">
               <a href="#" className="text-gray-600 hover:text-blue-600">
                 首页
               </a>
-              <a href="#" className="text-gray-600 hover:text-blue-600">
-                我的路线
-              </a>
+              {session && (
+                <a href="/my-routes" className="text-gray-600 hover:text-blue-600">
+                  我的路线
+                </a>
+              )}
               <a href="#" className="text-gray-600 hover:text-blue-600">
                 帮助
               </a>
+              <UserMenu />
             </nav>
           </div>
         </div>
