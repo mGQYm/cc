@@ -164,26 +164,322 @@
 
 ## 技术架构方案
 
-### 系统架构说明（成本优化版）
+### 演进式架构设计
+
+#### 架构演进路线图
+
+**阶段划分标准**
+| 阶段 | 用户量级 | 日活(DAU) | 核心诉求 | 成本预算 | 关键指标 |
+|------|----------|-----------|----------|----------|----------|
+| **种子期** | 0-100 | 0-50 | 快速验证MVP | $0-20 | 功能可用性 |
+| **启动期** | 100-1K | 50-300 | 稳定服务 | $20-100 | 响应时间<1s |
+| **成长期** | 1K-10K | 300-3K | 性能优化 | $100-500 | 可用性99.9% |
+| **爆发期** | 10K-100K | 3K-30K | 高并发支撑 | $500-3000 | 可用性99.99% |
+
+#### 各阶段技术架构方案
+
+##### 1. 种子期架构（0成本启动）
 ```
-CDN → 负载均衡器 → 应用集群
-├─ Web应用（SSR） → 主数据库（读写分离）
-├─ API服务 → 缓存层（Redis集群）
-├─ 文件存储 → OSS对象存储
-└─ 地图服务 → 混合策略（免费+付费）
+用户 → Cloudflare CDN → Vercel Edge Functions → Supabase (免费层)
+                     ↓
+              高德API + 本地缓存
+```
+**技术栈配置**
+- **前端**: Next.js 14 (Vercel免费层)
+- **数据库**: Supabase免费版 (500MB)
+- **缓存**: 浏览器缓存 + Vercel Edge Cache
+- **地图**: 高德API免费额度 (5000次/日)
+- **文件存储**: Vercel Blob (免费5GB)
+- **监控**: Vercel Analytics + 控制台日志
+
+**成本**: $0/月 (充分利用免费层)
+**承载能力**: 100 DAU，1000次日调用
+**部署时间**: <5分钟 (一键部署)
+
+**种子期优化策略**
+```typescript
+// 极简缓存策略
+const seedCacheStrategy = {
+  // 静态资源缓存24小时
+  static: { maxAge: 86400, swr: 86400 },
+  // API响应缓存5分钟
+  api: { maxAge: 300, swr: 300 },
+  // 地图瓦片缓存7天
+  tiles: { maxAge: 604800, swr: 604800 }
+};
+
+// 降级方案
+const fallbackStrategy = {
+  // API超限后使用本地mock数据
+  mockData: true,
+  // 简化推荐算法为规则匹配
+  simpleAlgorithm: true,
+  // 关闭实时协作功能
+  disableCollaboration: true
+};
 ```
 
-### 优化技术栈选型
+##### 2. 启动期架构（低成本稳定）
+```
+用户 → Cloudflare CDN → Vercel Pro → Supabase (小型) → Redis缓存
+                     ↓              ↓
+              高德API+Mapbox    读写分离准备
+```
+**技术栈升级**
+- **前端**: Vercel Pro ($20/月)
+- **数据库**: Supabase小型 ($29/月)
+- **缓存**: Upstash Redis ($10/月)
+- **地图**: 高德API+Mapbox按需 ($20-50/月)
+- **监控**: Sentry + UptimeRobot ($10/月)
 
-| 模块 | 技术方案 | 成本/月 | 选择理由 |
-|------|----------|---------|----------|
-| **前端** | Next.js 14 + TypeScript | $0 | SSR优化SEO，服务端组件减少JS包大小 |
-| **地图** | Mapbox + OpenStreetMap混合 | $50-200 | 国内用高德免费额度，国外用Mapbox按需付费 |
-| **后端** | Node.js + Express | $20-50 | 单实例可支撑1万DAU，避免过度微服务化 |
-| **数据库** | PostgreSQL + 读写分离 | $30-80 | Supabase免费额度起步，按需升级 |
-| **缓存** | Redis + CDN缓存策略 | $10-20 | Upstash Redis按请求付费，Cloudflare CDN免费层 |
-| **部署** | Vercel + 阿里云函数计算 | $0-100 | 前端Vercel免费，后端按量付费 |
-| **监控** | Vercel Analytics + UptimeRobot | $0-10 | 免费监控足够初期使用 |
+**成本**: $80-110/月
+**承载能力**: 1K DAU，10K次日调用
+**响应时间**: <500ms (P95)
+
+**启动期扩缩容配置**
+```yaml
+# vercel.json 自动扩缩容
+{
+  "functions": {
+    "api/*.ts": {
+      "maxDuration": 30,
+      "memory": 1024,
+      "regions": ["hkg1", "sin1"]
+    }
+  },
+  "crons": [{
+    "path": "/api/cache-warm",
+    "schedule": "0 */6 * * *"
+  }]
+}
+```
+
+##### 3. 成长期架构（性能优化）
+```
+用户 → 多CDN → Load Balancer → 容器化服务 → 主从数据库 → Redis集群
+                    ↓              ↓           ↓
+             地理分布式部署   微服务拆分   消息队列
+```
+**技术栈演进**
+- **前端**: 多CDN部署 (Cloudflare + 阿里云)
+- **后端**: Docker容器化 + K8s调度
+- **数据库**: PostgreSQL主从 + 读写分离
+- **缓存**: Redis集群 + 多级缓存
+- **队列**: Redis Streams + Bull Queue
+- **监控**: Prometheus + Grafana
+
+**成本**: $200-500/月
+**承载能力**: 10K DAU，100K次日调用
+**可用性**: 99.9%
+
+**容器化配置**
+```dockerfile
+# Dockerfile 多阶段构建
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+
+FROM node:18-alpine AS runner
+WORKDIR /app
+COPY --from=builder /app .
+COPY --from=builder /app/.next ./.next
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health || exit 1
+```
+
+##### 4. 爆发期架构（高可用分布式）
+```
+全球用户 → Anycast CDN → 边缘计算 → 微服务集群 → 分布式数据库 → 全球缓存
+                                ↓              ↓           ↓
+                        多活数据中心   分片+分区   智能调度
+```
+**技术栈升级**
+- **边缘计算**: Cloudflare Workers + Durable Objects
+- **微服务**: Kubernetes集群 + Service Mesh
+- **数据库**: CockroachDB分布式 + 分片
+- **缓存**: Redis Enterprise + Global Datastore
+- **队列**: Apache Kafka + 事件溯源
+- **监控**: OpenTelemetry + Jaeger
+
+**成本**: $1000-3000/月
+**承载能力**: 100K DAU，1M次日调用
+**可用性**: 99.99%
+
+#### 平滑过渡机制
+
+##### 1. 自动触发条件
+```typescript
+interface ScalingTriggers {
+  // 性能触发
+  responseTime: { threshold: 1000, duration: '5m' };
+  errorRate: { threshold: 0.01, duration: '2m' };
+  
+  // 容量触发
+  concurrentUsers: { threshold: 800, duration: '10m' };
+  dailyActiveUsers: { threshold: 900, duration: '1d' };
+  
+  // 成本触发
+  dailyCost: { threshold: 50, duration: '7d' };
+}
+
+// 自动升级脚本
+export const autoScaling = async (metrics: SystemMetrics) => {
+  if (metrics.dau > 1000 && metrics.responseTime > 800) {
+    await upgradeToGrowthStage();
+  }
+};
+```
+
+##### 2. 零停机迁移方案
+```bash
+#!/bin/bash
+# 蓝绿部署脚本
+set -e
+
+# 1. 预启动新版本
+kubectl apply -f k8s/blue-deployment.yaml
+kubectl wait --for=condition=ready pod -l app=tripcraft-blue
+
+# 2. 健康检查
+kubectl exec -it tripcraft-blue -- npm run health-check
+
+# 3. 流量切换
+kubectl patch service tripcraft -p '{"spec":{"selector":{"version":"blue"}}}'
+
+# 4. 监控验证
+sleep 30
+check_metrics || rollback
+
+# 5. 清理旧版本
+kubectl delete -f k8s/green-deployment.yaml
+```
+
+##### 3. 数据迁移策略
+```typescript
+// 渐进式数据迁移
+class DataMigration {
+  async migrateUsers(batchSize: number = 1000) {
+    const batches = Math.ceil(await this.getUserCount() / batchSize);
+    
+    for (let i = 0; i < batches; i++) {
+      const users = await this.getUserBatch(i * batchSize, batchSize);
+      await this.migrateBatchToNewDB(users);
+      
+      // 实时同步双写
+      await this.dualWrite(users);
+      
+      // 验证数据一致性
+      await this.validateMigration(users);
+      
+      // 延迟控制，避免影响线上
+      await sleep(1000);
+    }
+  }
+}
+```
+
+#### 技术选型演进表
+
+| 组件类型 | 极简MVP | 简化版 | 标准版 | 企业版 |
+|----------|--------|--------|--------|--------|
+| **部署平台** | 单VPS | Vercel Free | Vercel Pro | Vercel + CDN |
+| **数据库** | SQLite | Supabase Free | Supabase Small | Supabase Pro |
+| **缓存** | 无 | 浏览器缓存 | CDN缓存 | Redis |
+| **CDN** | 无 | Cloudflare Free | Cloudflare Pro | Cloudflare Pro |
+| **监控** | 日志文件 | Vercel日志 | 基础监控 | 完整监控 |
+| **队列** | 无 | 无 | 简单队列 | Redis队列 |
+| **存储** | 本地文件 | Vercel Blob | Vercel Blob | AWS S3 |
+| **成本** | $5/月 | $0 | $20/月 | $100/月 |
+
+### 简化技术方案（推荐）
+
+#### 极简MVP架构
+```
+用户 → Vercel → Supabase → 高德API
+```
+
+**技术栈配置**
+- **前端**: Next.js 14 (App Router)
+- **数据库**: Supabase (免费层)
+- **地图**: 高德API (免费额度)
+- **认证**: NextAuth.js (内置)
+- **样式**: Tailwind CSS
+- **部署**: Vercel (一键部署)
+
+**开发工具**
+- **包管理**: npm/pnpm
+- **代码检查**: ESLint + Prettier
+- **类型检查**: TypeScript
+- **版本控制**: Git + GitHub
+
+#### 功能简化清单
+| 原功能 | 简化方案 | 开发时间 |
+|--------|----------|----------|
+| AI推荐算法 | 规则匹配 | 2天 |
+| 实时协作 | 版本控制 | 1天 |
+| 多级缓存 | CDN默认缓存 | 0天 |
+| 复杂监控 | 基础日志 | 0.5天 |
+| 微服务架构 | 单体应用 | 0天 |
+| 容器编排 | Serverless | 0天 |
+
+#### 快速部署指南
+
+**一键部署命令**
+```bash
+# 1. 克隆模板
+npx create-next-app tripcraft --template typescript
+
+# 2. 安装依赖
+npm install @supabase/supabase-js next-auth tailwindcss
+
+# 3. 配置环境变量
+# 创建 .env.local
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_key
+NEXTAUTH_SECRET=your_nextauth_secret
+
+# 4. 一键部署到Vercel
+vercel --prod
+```
+
+**开发环境启动**
+```bash
+npm run dev    # 本地开发
+npm run build  # 构建生产版本
+npm run start  # 启动生产服务
+```
+
+#### 容量规划公式
+
+```typescript
+// 容量计算模型
+class CapacityPlanning {
+  calculateRequirements(users: number): ResourcePlan {
+    const base = {
+      cpu: users * 0.1, // 每用户0.1核CPU
+      memory: users * 128, // 每用户128MB内存
+      storage: users * 50, // 每用户50MB存储
+      bandwidth: users * 100, // 每用户100MB/月
+    };
+    
+    // 峰值系数 3倍
+    const peakMultiplier = 3;
+    
+    // 冗余系数 1.5倍
+    const redundancyMultiplier = 1.5;
+    
+    return {
+      cpu: Math.ceil(base.cpu * peakMultiplier * redundancyMultiplier),
+      memory: Math.ceil(base.memory * peakMultiplier * redundancyMultiplier),
+      storage: Math.ceil(base.storage * peakMultiplier),
+      bandwidth: Math.ceil(base.bandwidth * peakMultiplier),
+    };
+  }
+}
+```
 
 ### 安全架构方案
 
@@ -304,15 +600,55 @@ function resolve_edit(op1, op2) {
 
 ---
 
-## 开发里程碑（优化版）
+## 简化开发里程碑
 
-| 阶段 | 时间 | 核心目标 | 技术验证点 | 成本控制 |
-|------|------|----------|------------|----------|
-| **原型验证** | 第1-2周 | 单城市路线生成 | Next.js SSR性能验证 | $0（Vercel免费层） |
-| **MVP开发** | 第3-4周 | 3城市+基础编辑 | 并发用户100+验证 | $20-50/月 |
-| **性能优化** | 第5周 | CDN+缓存策略 | 响应时间<500ms | $30-80/月 |
-| **安全加固** | 第6周 | 渗透测试+修复 | OWASP Top10检查 | 一次性成本$500 |
-| **灰度上线** | 第7-8周 | 1000用户内测 | 监控告警体系 | $50-100/月 |
+| 阶段 | 时间 | 核心目标 | 技术栈 | 开发任务 |
+|------|------|----------|--------|----------|
+| **第1天** | 环境搭建 | Next.js项目初始化 | Next.js + Tailwind | 项目模板、基础配置 |
+| **第2-3天** | 数据库设计 | Supabase表结构设计 | Supabase | 用户表、路线表、景点表 |
+| **第4-5天** | 核心功能 | 路线生成算法 | Next.js API Routes | 规则匹配算法 |
+| **第6-7天** | 前端界面 | 三栏式编辑器 | React + Tailwind | 地图组件、时间轴 |
+| **第8-9天** | 用户系统 | 登录注册功能 | NextAuth.js | 社交登录、用户管理 |
+| **第10天** | 部署上线 | Vercel一键部署 | Vercel | 生产环境配置 |
+
+### 每日开发任务清单
+
+#### 第1天：环境搭建
+- [ ] 创建Next.js项目
+- [ ] 配置Tailwind CSS
+- [ ] 设置TypeScript
+- [ ] 初始化Git仓库
+
+#### 第2-3天：数据库设计
+- [ ] 创建Supabase项目
+- [ ] 设计用户表结构
+- [ ] 设计路线表结构
+- [ ] 设计景点关联表
+- [ ] 添加基础数据
+
+#### 第4-5天：核心算法
+- [ ] 实现地点搜索API
+- [ ] 实现路线生成算法
+- [ ] 添加时间计算逻辑
+- [ ] 基础测试
+
+#### 第6-7天：前端界面
+- [ ] 地图组件集成
+- [ ] 时间轴编辑器
+- [ ] 景点选择器
+- [ ] 响应式布局
+
+#### 第8-9天：用户功能
+- [ ] NextAuth配置
+- [ ] 社交登录集成
+- [ ] 用户数据关联
+- [ ] 权限管理
+
+#### 第10天：部署优化
+- [ ] Vercel部署配置
+- [ ] 环境变量设置
+- [ ] 性能优化
+- [ ] 基础监控
 
 ### 流量成本控制策略
 
@@ -750,18 +1086,476 @@ jobs:
 
 ---
 
-## 流量压力应对方案
+## 自动扩缩容与监控体系
 
-### 用户量分级架构设计
+### 智能扩缩容策略
 
-#### 1. 四级用户量架构演进
+#### 1. 分层自动扩缩容
 
-| 用户量级 | 日活(DAU) | 月成本 | 技术方案 | 响应时间 | 可用性 |
-|----------|-----------|---------|----------|----------|---------|
-| **种子期** | 0-100 | $0-20 | Vercel免费层 | <2s | 99.9% |
-| **启动期** | 100-1K | $20-100 | Vercel Pro + Supabase | <1s | 99.9% |
-| **成长期** | 1K-10K | $100-500 | 多CDN + 读写分离 | <500ms | 99.95% |
-| **爆发期** | 10K-100K | $500-2000 | 微服务 + 分布式 | <200ms | 99.99% |
+**Serverless自动扩缩容**
+```typescript
+// Vercel函数配置
+export const config = {
+  runtime: 'edge',
+  regions: ['hkg1', 'sin1', 'nrt1'], // 亚太区域
+  maxDuration: 30,
+  memory: 1024,
+  
+  // 自动扩缩容策略
+  scaling: {
+    min: 1,    // 最小实例数
+    max: 100,  // 最大实例数
+    target: {
+      cpu: 70, // CPU目标使用率
+      memory: 80 // 内存目标使用率
+    }
+  }
+};
+
+// 自适应缓存策略
+const cacheStrategy = {
+  static: {
+    '/*': { swr: 86400, ttl: 31536000 }, // 静态资源缓存1年
+    '/api/*': { swr: 300, ttl: 3600 }, // API缓存1小时
+  },
+  dynamic: {
+    '/routes/*': { swr: 60, ttl: 300 }, // 动态路由缓存5分钟
+  }
+};
+```
+
+**数据库自动扩容**
+```sql
+-- 读写分离配置（Supabase）
+-- 主库：写操作 + 实时查询
+-- 从库：读操作 + 报表查询
+
+-- 自动分区表设计
+CREATE TABLE routes_2024_01 PARTITION OF routes 
+FOR VALUES FROM ('2024-01-01') TO ('2024-02-01');
+
+-- 索引优化
+CREATE INDEX idx_routes_user_location ON routes(user_id, location);
+CREATE INDEX idx_routes_created_at ON routes(created_at DESC);
+
+-- 自动扩容触发器
+CREATE OR REPLACE FUNCTION check_db_size()
+RETURNS void AS $$
+BEGIN
+  IF (SELECT pg_database_size(current_database())) > 1073741824 THEN -- 1GB
+    RAISE NOTICE 'Database size exceeds 1GB, consider upgrading';
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+**Redis缓存策略**
+```typescript
+// 缓存键设计
+const CACHE_KEYS = {
+  // 热点数据缓存5分钟
+  HOT_ROUTES: 'hot:routes',
+  // 用户数据缓存30分钟
+  USER_ROUTES: (userId: string) => `user:${userId}:routes`,
+  // 地点数据缓存1小时
+  LOCATION_DATA: (location: string) => `loc:${location}:data`,
+  // 搜索结果缓存10分钟
+  SEARCH_RESULTS: (query: string) => `search:${md5(query)}`,
+};
+
+// 缓存预热机制
+export const warmCache = async () => {
+  const popularLocations = ['北京', '上海', '广州', '深圳', '杭州'];
+  const promises = popularLocations.map(location => 
+    prefetchLocationData(location)
+  );
+  await Promise.all(promises);
+};
+
+// 缓存雪崩防护
+const cacheProtection = {
+  // 随机过期时间避免同时失效
+  randomExpiry: (base: number) => base + Math.random() * 300,
+  // 分布式锁防止并发重建
+  distributedLock: (key: string) => `lock:${key}`,
+  // 降级策略
+  fallback: {
+    staleData: true,
+    simplifiedResponse: true
+  }
+};
+```
+
+#### 2. 流量削峰方案
+
+**消息队列缓冲**
+```typescript
+// 使用Redis Stream作为消息队列
+import { Redis } from 'ioredis';
+
+const redis = new Redis(process.env.REDIS_URL);
+
+// 路线计算请求队列
+export const routeCalculationQueue = {
+  async add(data: RouteCalculationRequest) {
+    return redis.xadd('route:calculation', '*', 
+      'userId', data.userId,
+      'locations', JSON.stringify(data.locations),
+      'preferences', JSON.stringify(data.preferences)
+    );
+  },
+  
+  async process(batchSize: number = 10) {
+    const results = await redis.xread('COUNT', batchSize, 'STREAMS', 'route:calculation', '0');
+    return results?.[0]?.[1] || [];
+  },
+  
+  // 队列监控
+  async getQueueStats() {
+    const info = await redis.xinfo('STREAM', 'route:calculation');
+    return {
+      pending: info[1][1],
+      processing: info[1][3],
+      deadLetter: info[1][5]
+    };
+  }
+};
+
+// 批量处理优化
+export const batchProcessor = {
+  async processBatch(items: QueueItem[]) {
+    const batch = items.slice(0, 50); // 限制批次大小
+    const results = await Promise.allSettled(
+      batch.map(item => this.processItem(item))
+    );
+    
+    // 失败重试机制
+    const failures = results.filter(r => r.status === 'rejected');
+    if (failures.length > 0) {
+      await this.scheduleRetry(failures.map(f => f.reason));
+    }
+    
+    return results;
+  }
+};
+```
+
+**限流与降级**
+```typescript
+// 基于用户等级的限流策略
+const rateLimits = {
+  free: { requests: 10, window: 60000 }, // 免费用户：每分钟10次
+  premium: { requests: 100, window: 60000 }, // 付费用户：每分钟100次
+  admin: { requests: 1000, window: 60000 }, // 管理员：每分钟1000次
+};
+
+// 服务降级策略
+const degradationStrategy = {
+  // CPU使用率>80%时
+  highCpu: {
+    disable: ['realTimeCollaboration', 'aiRecommendations'],
+    cacheOnly: ['mapTiles', 'staticAssets'],
+    simplified: ['routeCalculation'],
+  },
+  
+  // 内存使用率>90%时
+  highMemory: {
+    disable: ['imageProcessing', 'fileUploads'],
+    compress: ['apiResponses', 'staticAssets'],
+  },
+};
+
+// 自适应限流
+export const adaptiveRateLimit = async (req: Request) => {
+  const userTier = await getUserTier(req.userId);
+  const limit = rateLimits[userTier];
+  
+  const key = `rate_limit:${userTier}:${req.ip}`;
+  const current = await redis.incr(key);
+  
+  if (current === 1) {
+    await redis.expire(key, limit.window / 1000);
+  }
+  
+  if (current > limit.requests) {
+    throw new Error('Rate limit exceeded');
+  }
+  
+  return { remaining: limit.requests - current, reset: await redis.ttl(key) };
+};
+```
+
+### 监控告警体系
+
+#### 1. 实时监控指标
+
+**三层监控架构**
+```typescript
+// 关键指标监控
+const metrics = {
+  // 系统指标
+  responseTime: new Histogram('http_request_duration_seconds'),
+  requestRate: new Counter('http_requests_total'),
+  errorRate: new Counter('http_errors_total'),
+  
+  // 业务指标
+  activeUsers: new Gauge('active_users'),
+  routeCalculations: new Counter('route_calculations_total'),
+  cacheHitRate: new Gauge('cache_hit_rate'),
+  
+  // 成本指标
+  apiCalls: new Counter('api_calls_total'),
+  bandwidthUsage: new Counter('bandwidth_bytes_total'),
+};
+
+// 自定义业务指标
+const businessMetrics = {
+  // 用户行为指标
+  userEngagement: {
+    routesCreated: new Counter('routes_created_total'),
+    routesShared: new Counter('routes_shared_total'),
+    avgRouteDuration: new Histogram('route_duration_minutes'),
+  },
+  
+  // 性能指标
+  mapLoadTime: new Histogram('map_load_duration_seconds'),
+  searchLatency: new Histogram('search_query_duration_seconds'),
+  collaborationEvents: new Counter('collaboration_events_total'),
+};
+```
+
+#### 2. 智能告警规则
+
+**分层告警策略**
+```yaml
+# 告警规则配置
+groups:
+  - name: system_alerts
+    rules:
+      - alert: HighResponseTime
+        expr: http_request_duration_seconds{quantile="0.95"} > 2
+        for: 2m
+        annotations:
+          summary: "95%响应时间超过2秒"
+          description: "服务响应时间异常，当前值: {{ $value }}s"
+          
+      - alert: HighErrorRate
+        expr: rate(http_errors_total[5m]) > 0.1
+        for: 1m
+        annotations:
+          summary: "错误率超过10%"
+          description: "系统错误率异常，当前值: {{ $value }}"
+          
+      - alert: CacheHitRateLow
+        expr: cache_hit_rate < 0.8
+        for: 5m
+        annotations:
+          summary: "缓存命中率低于80%"
+          description: "缓存效率下降，当前命中率: {{ $value }}"
+          
+      - alert: APICostHigh
+        expr: increase(api_calls_total[1d]) * 0.001 > 10
+        for: 1h
+        annotations:
+          summary: "API调用成本过高"
+          description: "今日API调用成本超过$10"
+
+  - name: business_alerts
+    rules:
+      - alert: UserGrowthSpike
+        expr: increase(active_users[1h]) > 500
+        for: 5m
+        annotations:
+          summary: "用户增长异常"
+          description: "1小时内新增用户超过500，可能需扩容"
+          
+      - alert: RouteCalculationQueueBacklog
+        expr: route_calculation_queue_depth > 100
+        for: 10m
+        annotations:
+          summary: "路线计算队列积压"
+          description: "队列积压超过100个任务"
+```
+
+#### 3. 故障自愈机制
+
+**自动故障恢复**
+```typescript
+// 故障检测与恢复
+class FaultTolerance {
+  private circuitBreaker = new CircuitBreaker({
+    timeout: 3000,
+    errorThreshold: 5,
+    resetTimeout: 30000
+  });
+
+  async resilientAPIcall(endpoint: string, params: any) {
+    return this.circuitBreaker.execute(async () => {
+      const response = await fetch(endpoint, { params });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    });
+  }
+
+  // 数据库连接池管理
+  async manageConnectionPool() {
+    const pool = new Pool({
+      host: process.env.DB_HOST,
+      database: process.env.DB_NAME,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      max: 20, // 最大连接数
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+    });
+
+    // 连接池监控
+    setInterval(() => {
+      const stats = pool.getStats();
+      metrics.databaseConnections.set(stats.totalCount);
+      
+      if (stats.waitingCount > 10) {
+        this.scaleUpDatabase();
+      }
+    }, 10000);
+  }
+}
+
+// 服务网格熔断
+const serviceMeshConfig = {
+  circuitBreaker: {
+    consecutiveErrors: 3,
+    interval: 30,
+    baseEjectionTime: 30,
+    maxEjectionPercent: 50
+  },
+  retryPolicy: {
+    attempts: 3,
+    perTryTimeout: 2,
+    retryOn: ['5xx', 'reset', 'connect-failure']
+  }
+};
+```
+
+### 成本优化与预警
+
+#### 1. 智能成本控制
+
+**分层成本控制**
+```typescript
+const costOptimization = {
+  // 非工作时间降级
+  offHours: {
+    schedule: '0 22 * * *', // 每晚10点
+    actions: [
+      'scaleDownCompute()',
+      'reduceCacheTTL()',
+      'disableNonCriticalFeatures()',
+    ],
+  },
+  
+  // 流量预测与预扩容
+  predictiveScaling: {
+    enabled: true,
+    model: 'linear_regression',
+    forecastDays: 7,
+    confidence: 0.85,
+  },
+  
+  // 成本预警
+  budgetAlerts: {
+    daily: 50,
+    weekly: 300,
+    monthly: 1000,
+  },
+};
+
+// 资源使用优化
+const resourceOptimizer = {
+  // 自动选择最便宜的区域
+  selectCheapestRegion: async (regions: string[]) => {
+    const prices = await Promise.all(
+      regions.map(async (region) => ({
+        region,
+        price: await getInstancePrice(region, 't3.small')
+      }))
+    );
+    return prices.sort((a, b) => a.price - b.price)[0].region;
+  },
+  
+  // 预留实例推荐
+  recommendReservedInstances: async () => {
+    const usage = await getHistoricalUsage();
+    const baseline = calculateBaselineUsage(usage);
+    return {
+      recommended: baseline * 0.8, // 80%预留
+      potentialSavings: baseline * 0.3 // 30%成本节省
+    };
+  }
+};
+```
+
+#### 2. 性能测试基准
+
+**压力测试场景**
+```typescript
+// 测试配置
+const loadTestScenarios = {
+  // 日常负载
+  normal: {
+    users: 1000,
+    duration: '10m',
+    rampUp: '2m',
+  },
+  
+  // 峰值负载
+  peak: {
+    users: 10000,
+    duration: '1h',
+    rampUp: '5m',
+  },
+  
+  // 极限测试
+  stress: {
+    users: 50000,
+    duration: '30m',
+    rampUp: '10m',
+  },
+};
+
+// 基准测试指标
+const performanceBenchmarks = {
+  responseTime: {
+    p95: '<500ms',
+    p99: '<2s',
+    max: '<5s',
+  },
+  throughput: {
+    rps: 1000,
+    concurrent: 10000,
+  },
+  errorRate: '<0.1%',
+};
+
+// 自动化测试脚本
+export const runLoadTest = async (scenario: string) => {
+  const config = loadTestScenarios[scenario];
+  
+  return await k6.run({
+    vus: config.users,
+    duration: config.duration,
+    stages: [
+      { duration: config.rampUp, target: config.users },
+      { duration: config.duration, target: config.users },
+      { duration: '2m', target: 0 }
+    ],
+    thresholds: {
+      http_req_duration: ['p(95)<500'],
+      http_req_failed: ['rate<0.1'],
+    }
+  });
+};
+```
 
 #### 2. 自动扩缩容策略
 
@@ -1064,17 +1858,13 @@ const performanceBenchmarks = {
 ---
 
 ## 文档维护
-- **版本控制**：v2.0.0-optimized（2024-01-15）
+- **版本控制**：v2.1.0-simplified（2024-01-15）
 - **更新规则**：
   - 架构变更：24小时内更新
   - 组件新增：12小时内更新文档
   - 安全更新：即时更新
 - **文档类型**：
   - 开发文档（本文件）
-  - 组件文档：/docs/components
+  - 简化部署指南（新增）
   - API文档：/docs/api
   - 部署文档：/docs/deployment
-- **自动化维护**：
-  - 代码变更自动触发文档更新
-  - API变更自动生成OpenAPI文档
-  - 组件变更自动更新Storybook
