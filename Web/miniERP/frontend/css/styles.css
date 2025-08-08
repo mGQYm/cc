@@ -242,6 +242,53 @@ tr:hover {
     min-height: 80px;
 }
 
+.language-switcher {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.search-filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.search-input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    min-width: 200px;
+}
+
+.filter-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    min-width: 120px;
+}
+
+.price-input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 100px;
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 10px;
@@ -313,9 +360,25 @@ tr:hover {
         padding: 10px;
         font-size: 16px;
     }
+    
+    .controls-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-input,
+    .filter-select,
+    .price-input {
+        width: 100%;
+        min-width: unset;
+    }
 }
 
-/* Additional responsive improvements */
 @media (max-width: 480px) {
     .container {
         padding: 5px;

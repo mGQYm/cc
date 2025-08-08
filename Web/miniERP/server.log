@@ -1,0 +1,10 @@
+
+> mini-erp-system@1.0.0 start
+> node backend/server.js
+
+Server is running on http://0.0.0.0:3003
+Local access: http://localhost:3003
+JSON database connected
+JSON database connected
+JSON database connected
+JSON database connected

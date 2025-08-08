@@ -51,7 +51,18 @@
             <!-- Products Tab -->
             <div id="products" class="tab-content">
                 <h2 data-i18n="products">Products Management</h2>
-                <button class="btn-primary" onclick="showAddProductModal()" data-i18n="addProduct">Add Product</button>
+                <div class="controls-row">
+                    <button class="btn-primary" onclick="showAddProductModal()" data-i18n="addProduct">Add Product</button>
+                    <div class="search-filters">
+                        <input type="text" id="product-search" placeholder="Search products..." class="search-input">
+                        <select id="product-category-filter" class="filter-select">
+                            <option value="">All Categories</option>
+                        </select>
+                        <input type="number" id="product-min-price" placeholder="Min price" class="price-input" step="0.01">
+                        <input type="number" id="product-max-price" placeholder="Max price" class="price-input" step="0.01">
+                        <button class="btn-secondary" onclick="clearProductFilters()">Clear</button>
+                    </div>
+                </div>
                 <div class="table-container">
                     <table id="products-table">
                         <thead>
@@ -60,6 +71,7 @@
                                 <th data-i18n="name">Name</th>
                                 <th data-i18n="price">Price</th>
                                 <th data-i18n="category">Category</th>
+                                <th data-i18n="description">Description</th>
                                 <th data-i18n="actions">Actions</th>
                             </tr>
                         </thead>
@@ -100,6 +112,7 @@
                             <tr>
                                 <th>ID</th>
                                 <th data-i18n="customer">Customer</th>
+                                <th data-i18n="items">Items</th>
                                 <th data-i18n="total">Total</th>
                                 <th data-i18n="status">Status</th>
                                 <th data-i18n="date">Date</th>
@@ -191,16 +204,17 @@
                             <option value="">Select Customer</option>
                         </select>
                     </div>
+                    
                     <div class="form-group">
-                        <label>Product:</label>
-                        <select id="order-product" required>
-                            <option value="">Select Product</option>
-                        </select>
+                        <label>Order Items:</label>
+                        <div id="order-items-container">
+                            <!-- Order items will be dynamically added here -->
+                        </div>
+                        <button type="button" class="btn-secondary" onclick="addOrderItem()" style="margin-top: 10px;">
+                            Add Product
+                        </button>
                     </div>
-                    <div class="form-group">
-                        <label>Quantity:</label>
-                        <input type="number" id="order-quantity" min="1" required>
-                    </div>
+                    
                     <div class="form-group">
                         <label>Status:</label>
                         <select id="order-status">

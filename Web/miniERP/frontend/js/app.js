@@ -31,6 +31,43 @@ class ERPSystem {
             // Set initial language
             languageSwitcher.value = i18n.getCurrentLanguage();
         }
+        
+        // Product search and filter listeners
+        const productSearch = document.getElementById('product-search');
+        const categoryFilter = document.getElementById('product-category-filter');
+        const minPrice = document.getElementById('product-min-price');
+        const maxPrice = document.getElementById('product-max-price');
+        
+        if (productSearch) {
+            productSearch.addEventListener('input', () => this.loadProducts());
+        }
+        
+        if (categoryFilter) {
+            categoryFilter.addEventListener('change', () => this.loadProducts());
+        }
+        
+        if (minPrice) {
+            minPrice.addEventListener('input', () => this.loadProducts());
+        }
+        
+        if (maxPrice) {
+            maxPrice.addEventListener('input', () => this.loadProducts());
+        }
+    }
+    
+    async loadCategories() {
+        try {
+            const categories = await this.fetchData('products/categories');
+            const categoryFilter = document.getElementById('product-category-filter');
+            if (categoryFilter) {
+                categoryFilter.innerHTML = '<option value="">All Categories</option>';
+                categories.forEach(category => {
+                    categoryFilter.innerHTML += `<option value="${category}">${category}</option>`;
+                });
+            }
+        } catch (error) {
+            console.error('Error loading categories:', error);
+        }
     }
 
     switchTab(tabName) {
@@ -50,6 +87,7 @@ class ERPSystem {
                 await this.loadDashboard();
                 break;
             case 'products':
+                await this.loadCategories();
                 await this.loadProducts();
                 break;
             case 'customers':
@@ -89,7 +127,24 @@ class ERPSystem {
 
     async loadProducts() {
         try {
-            const products = await this.fetchData('products');
+            const searchParams = new URLSearchParams();
+            
+            const search = document.getElementById('product-search')?.value;
+            const category = document.getElementById('product-category-filter')?.value;
+            const minPrice = document.getElementById('product-min-price')?.value;
+            const maxPrice = document.getElementById('product-max-price')?.value;
+            
+            if (search) searchParams.append('search', search);
+            if (category) searchParams.append('category', category);
+            if (minPrice) searchParams.append('minPrice', minPrice);
+            if (maxPrice) searchParams.append('maxPrice', maxPrice);
+            
+            const queryString = searchParams.toString();
+            const url = `${this.baseURL}/products${queryString ? '?' + queryString : ''}`;
+            
+            const response = await fetch(url);
+            const products = await response.json();
+            
             this.products = products;
             const tbody = document.getElementById('products-tbody');
             tbody.innerHTML = '';
@@ -101,6 +156,7 @@ class ERPSystem {
                     <td>${product.name}</td>
                     <td>$${product.price}</td>
                     <td>${product.category}</td>
+                    <td>${product.description || 'N/A'}</td>
                     <td>
                         <button class="action-btn edit-btn" onclick="erp.editProduct('${product.id}')">Edit</button>
                         <button class="action-btn delete-btn" onclick="erp.deleteProduct('${product.id}')">Delete</button>
@@ -139,20 +195,20 @@ class ERPSystem {
 
     async loadOrders() {
         try {
-            const [orders, customers] = await Promise.all([
-                this.fetchData('orders'),
-                this.fetchData('customers')
-            ]);
-            
+            const orders = await this.fetchData('orders');
             const tbody = document.getElementById('orders-tbody');
             tbody.innerHTML = '';
             
             orders.forEach(order => {
-                const customer = customers.find(c => c.id === order.customerId);
+                const itemsText = order.items
+                    ? order.items.map(item => `${item.productName} x${item.quantity}`).join(', ')
+                    : 'No items';
+                    
                 const row = tbody.insertRow();
                 row.innerHTML = `
                     <td>${order.id}</td>
-                    <td>${customer ? customer.name : 'Unknown'}</td>
+                    <td>${order.customerName || 'Unknown'}</td>
+                    <td>${itemsText}</td>
                     <td>$${order.total || 0}</td>
                     <td><span class="status status-${order.status}">${order.status}</span></td>
                     <td>${new Date(order.createdAt).toLocaleDateString()}</td>
@@ -488,6 +544,14 @@ function closeModal() {
 
 function saveItem() {
     erp.saveItem();
+}
+
+function clearProductFilters() {
+    document.getElementById('product-search').value = '';
+    document.getElementById('product-category-filter').value = '';
+    document.getElementById('product-min-price').value = '';
+    document.getElementById('product-max-price').value = '';
+    erp.loadProducts();
 }
 
 const erp = new ERPSystem();

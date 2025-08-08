@@ -1,0 +1,9 @@
+
+> farm-match3-game@1.0.0 dev
+> vite --port 3000 --host 0.0.0.0 2
+
+
+  VITE v5.4.19  ready in 450 ms
+
+  ➜  Local:   http://localhost:3000/
+  ➜  Network: http://172.26.14.29:3000/

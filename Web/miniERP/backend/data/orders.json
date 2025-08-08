@@ -2,8 +2,12 @@
   {
     "id": "1",
     "customerId": "1",
-    "productId": "1",
-    "quantity": 2,
+    "items": [
+      {
+        "productId": "1",
+        "quantity": 2
+      }
+    ],
     "total": 1799.98,
     "status": "completed",
     "createdAt": "2024-01-15T10:30:00Z"
@@ -11,8 +15,12 @@
   {
     "id": "2",
     "customerId": "2",
-    "productId": "3",
-    "quantity": 1,
+    "items": [
+      {
+        "productId": "3",
+        "quantity": 1
+      }
+    ],
     "total": 199.99,
     "status": "processing",
     "createdAt": "2024-01-16T14:20:00Z"
@@ -20,8 +28,12 @@
   {
     "id": "3",
     "customerId": "3",
-    "productId": "2",
-    "quantity": 3,
+    "items": [
+      {
+        "productId": "2",
+        "quantity": 3
+      }
+    ],
     "total": 89.97,
     "status": "pending",
     "createdAt": "2024-01-17T09:15:00Z"
