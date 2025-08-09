@@ -1,44 +1,28 @@
 import { NextAuthOptions } from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
-import GitHubProvider from 'next-auth/providers/github';
-import { SupabaseAdapter } from '@next-auth/supabase-adapter';
 
+// 简化的MVP认证配置，仅用于演示
 export const authOptions: NextAuthOptions = {
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
-    GitHubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    }),
-  ],
-  adapter: SupabaseAdapter({
-    url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    secret: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  }),
+  providers: [], // 空提供商列表，允许匿名访问
+  session: {
+    strategy: 'jwt',
+  },
   callbacks: {
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
-      }
+    async session({ session }) {
+      // 为MVP创建模拟用户
+      session.user = { 
+        id: 'demo_user_id', 
+        name: 'Demo User', 
+        email: 'demo@example.com' 
+      };
       return session;
     },
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-      }
+    async jwt({ token }) {
+      token.sub = 'demo_user_id';
       return token;
     },
   },
   pages: {
     signIn: '/auth/signin',
-    signOut: '/auth/signout',
-    error: '/auth/error',
   },
-  session: {
-    strategy: 'database',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
+  secret: process.env.NEXTAUTH_SECRET || 'demo-secret-for-mvp',
 };
