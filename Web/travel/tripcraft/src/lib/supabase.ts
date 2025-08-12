@@ -47,7 +47,7 @@ export const db = {
   },
 
   // Spots operations
-  async getSpotsByLocation(location: string) {
+    async getSpotsByLocation(location: string) {
     return supabase.from('spots').select('*').ilike('location', `%${location}%`);
   },
 
