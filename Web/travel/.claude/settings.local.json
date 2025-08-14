@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(npm install)",
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(./node_modules/.bin/tailwindcss:*)",
+      "Bash(npm run dev:*)",
+      "Bash(pkill:*)",
+      "Bash(cat:*)",
+      "Bash(curl:*)",
+      "Bash(iptables:*)",
+      "Bash(ip route:*)",
+      "Bash(npm run build:*)",
+      "Bash(find:*)",
+      "Bash(mkdir:*)",
+      "Bash(timeout:*)",
+      "Bash(npm start)",
+      "Bash(ss:*)",
+      "Bash(lsof:*)",
+      "Bash(chmod:*)",
+      "Bash(./run-server.sh:*)",
+      "Bash(./check-access.sh:*)",
+      "Bash(npx create-next-app:*)",
+      "Bash(touch:*)",
+      "Bash(env)",
+      "Bash(sudo:*)"
+    ],
+    "deny": []
+  }
+}

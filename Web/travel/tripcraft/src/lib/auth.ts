@@ -1,7 +1,6 @@
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import GitHubProvider from 'next-auth/providers/github';
-import { SupabaseAdapter } from '@next-auth/supabase-adapter';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -14,31 +13,26 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     }),
   ],
-  adapter: SupabaseAdapter({
-    url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    secret: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  }),
+  session: {
+    strategy: 'jwt',
+  },
   callbacks: {
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
+    async session({ session, token }) {
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        token.sub = user.id;
       }
       return token;
     },
   },
   pages: {
     signIn: '/auth/signin',
-    signOut: '/auth/signout',
     error: '/auth/error',
   },
-  session: {
-    strategy: 'database',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
+  secret: process.env.NEXTAUTH_SECRET,
 };
