@@ -14,7 +14,7 @@ CREATE TABLE users (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Routes table
+-- Routes table (enhanced)
 CREATE TABLE routes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
@@ -25,6 +25,11 @@ CREATE TABLE routes (
   total_days INTEGER NOT NULL DEFAULT 1,
   interests JSONB DEFAULT '[]',
   budget_level INTEGER CHECK (budget_level BETWEEN 1 AND 3) DEFAULT 2,
+  budget DECIMAL(10, 2) DEFAULT 0,
+  expenses JSONB DEFAULT '[]',
+  checklist JSONB DEFAULT '{"name": "旅行清单", "items": []}',
+  notes TEXT,
+  collaborators JSONB DEFAULT '[]',
   is_public BOOLEAN DEFAULT FALSE,
   share_token VARCHAR(255) UNIQUE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

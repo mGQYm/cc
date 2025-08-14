@@ -27,6 +27,35 @@ export interface RouteDay {
   total_duration: number;
 }
 
+export interface ChecklistItem {
+  id: string;
+  title: string;
+  completed: boolean;
+  category?: string;
+}
+
+export interface Checklist {
+  id: string;
+  name: string;
+  items: ChecklistItem[];
+}
+
+export interface Expense {
+  id: string;
+  title: string;
+  amount: number;
+  category: 'transport' | 'accommodation' | 'food' | 'activities' | 'shopping' | 'other';
+  date: string;
+  notes?: string;
+}
+
+export interface RouteDay {
+  date: string;
+  spots: Spot[];
+  total_duration: number;
+  notes?: string;
+}
+
 export interface Route {
   id: string;
   user_id: string;
@@ -37,6 +66,11 @@ export interface Route {
   total_days: number;
   interests: string[];
   budget_level: 1 | 2 | 3; // 1: budget, 2: standard, 3: luxury
+  budget: number;
+  expenses: Expense[];
+  checklist: Checklist;
+  notes?: string;
+  collaborators?: string[];
   is_public: boolean;
   created_at: string;
   updated_at: string;
